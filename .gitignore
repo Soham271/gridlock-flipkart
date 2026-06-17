@@ -1,0 +1,32 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+*.egg-info/
+
+# ML models (large binary files)
+astram_models_bundle/*.pkl
+ml_sidecar/astram_models_bundle/*.pkl
+
+# Node
+node_modules/
+.next/
+out/
+
+# Go
+backend/gridlock-backend
+backend/*.exe
+
+# Env
+.env
+.env.local
+.env*.local
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Jupyter checkpoints
+.ipynb_checkpoints/
