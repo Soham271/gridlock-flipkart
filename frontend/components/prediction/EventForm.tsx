@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { PredictRequest, MetaResponse } from "@/types"
 import { getMeta } from "@/lib/api"
+import { validatePredictRequest } from "@/lib/validate"
 import { EVENT_CAUSES, EVENT_TYPES, VEH_TYPES } from "@/lib/severity"
 import { MapPin, Loader2 } from "lucide-react"
 
@@ -19,6 +20,7 @@ const now = new Date()
 
 export default function EventForm({ onSubmit, loading, pickedLocation }: Props) {
   const [meta, setMeta] = useState<MetaResponse | null>(null)
+  const [formError, setFormError] = useState<string | null>(null)
   const [form, setForm] = useState<PredictRequest>({
     latitude:    12.9716,
     longitude:   77.5946,
@@ -49,11 +51,22 @@ export default function EventForm({ onSubmit, loading, pickedLocation }: Props) 
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
+    const err = validatePredictRequest(form)
+    if (err) {
+      setFormError(err)
+      return
+    }
+    setFormError(null)
     onSubmit(form)
   }
 
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
+      {formError && (
+        <div className="bg-red-900/40 border border-red-700 rounded-lg px-3 py-2 text-red-300 text-sm">
+          {formError}
+        </div>
+      )}
 
       {/* Location */}
       <div>
@@ -64,11 +77,13 @@ export default function EventForm({ onSubmit, loading, pickedLocation }: Props) 
           <div>
             <Input type="number" step="any" placeholder="Latitude" value={form.latitude}
               onChange={e => set("latitude", parseFloat(e.target.value))}
+              min={12} max={13}
               className="bg-gray-700 border-gray-600 text-white" required />
           </div>
           <div>
             <Input type="number" step="any" placeholder="Longitude" value={form.longitude}
               onChange={e => set("longitude", parseFloat(e.target.value))}
+              min={77} max={78}
               className="bg-gray-700 border-gray-600 text-white" required />
           </div>
         </div>

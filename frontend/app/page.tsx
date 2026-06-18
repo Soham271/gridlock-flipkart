@@ -29,14 +29,14 @@ export default function Dashboard() {
     : "—"
 
   return (
-    <div className="p-6 max-w-7xl mx-auto">
+    <div className="p-4 sm:p-6 max-w-7xl mx-auto">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-white">Traffic Intelligence Dashboard</h1>
+        <h1 className="text-xl sm:text-2xl font-bold text-white">Traffic Intelligence Dashboard</h1>
         <p className="text-gray-400 text-sm mt-1">Bengaluru Event-Driven Congestion Monitor</p>
       </div>
 
       {/* Stat cards */}
-      <div className="grid grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6">
         {[
           { label: "Total Predictions", value: history.length.toString() },
           { label: "Critical Events",   value: history.filter(h => h.severity_level === 3).length.toString() },
@@ -50,9 +50,9 @@ export default function Dashboard() {
         ))}
       </div>
 
-      <div className="grid grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Map */}
-        <div className="col-span-2">
+        <div className="lg:col-span-2">
           <div className="bg-gray-800 rounded-xl p-4 border border-gray-700">
             <h2 className="text-white font-semibold mb-3">Incident Map — Bengaluru</h2>
             <BengaluruMap entries={history} height="380px" />

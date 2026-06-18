@@ -369,10 +369,10 @@ services:
 
 | Day | Target | Status |
 |---|---|---|
-| 17 June | Python sidecar + Go backend running locally | ⬜ |
-| 18 June | Next.js frontend, form + results working | ⬜ |
-| 19 June | Map + dashboard + history page | ⬜ |
-| 20 June | Polish + Docker + deploy prep | ⬜ |
+| 17 June | Python sidecar + Go backend running locally | ✅ |
+| 18 June | Next.js frontend, form + results working | ✅ |
+| 19 June | Map + dashboard + history page | ✅ |
+| 20 June | Polish + Docker + deploy prep | ✅ |
 | 21 June | Live deployment + demo ready | ⬜ |
 
 ---

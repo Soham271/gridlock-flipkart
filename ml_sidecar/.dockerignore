@@ -1,0 +1,6 @@
+__pycache__
+*.pyc
+.venv
+venv
+astram_models_bundle/*.pkl
+*.png

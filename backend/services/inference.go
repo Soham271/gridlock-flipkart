@@ -12,7 +12,7 @@ import (
 	"github.com/gridlock/backend/models"
 )
 
-var httpClient = &http.Client{Timeout: 15 * time.Second}
+var httpClient = &http.Client{Timeout: 5 * time.Second}
 
 func sidecarURL() string {
 	if url := os.Getenv("SIDECAR_URL"); url != "" {

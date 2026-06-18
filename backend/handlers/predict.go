@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"net/http"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gridlock/backend/models"
@@ -17,7 +18,13 @@ func Predict(c *gin.Context) {
 
 	result, err := services.Infer(req)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		status := http.StatusInternalServerError
+		msg := err.Error()
+		if strings.Contains(msg, "sidecar unreachable") ||
+			strings.Contains(msg, "ML service unavailable") {
+			status = http.StatusServiceUnavailable
+		}
+		c.JSON(status, gin.H{"error": msg})
 		return
 	}
 

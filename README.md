@@ -177,6 +177,8 @@ gridlock-new/
 
 ## Deployment
 
+See **[DEPLOY.md](./DEPLOY.md)** for full Railway + Vercel step-by-step instructions.
+
 ### Railway (Go + Python)
 
 1. Connect GitHub repo to Railway

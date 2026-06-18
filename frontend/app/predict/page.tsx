@@ -4,6 +4,7 @@ import dynamic from "next/dynamic"
 import EventForm from "@/components/prediction/EventForm"
 import SeverityCard from "@/components/prediction/SeverityCard"
 import ProbabilityChart from "@/components/prediction/ProbabilityChart"
+import PredictionSkeleton from "@/components/prediction/PredictionSkeleton"
 import ResourcePanel from "@/components/prediction/ResourcePanel"
 import { PredictRequest, PredictResponse } from "@/types"
 import { predictEvent } from "@/lib/api"
@@ -34,15 +35,15 @@ export default function PredictPage() {
   }
 
   return (
-    <div className="p-6 max-w-7xl mx-auto">
+    <div className="p-4 sm:p-6 max-w-7xl mx-auto">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-white">Predict Congestion Impact</h1>
+        <h1 className="text-xl sm:text-2xl font-bold text-white">Predict Congestion Impact</h1>
         <p className="text-gray-400 text-sm mt-1">Fill in event details or click the map to set location</p>
       </div>
 
-      <div className="grid grid-cols-5 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
         {/* Left — Form + Map */}
-        <div className="col-span-2 space-y-4">
+        <div className="lg:col-span-2 space-y-4">
           <div className="bg-gray-800 rounded-xl p-5 border border-gray-700">
             <EventForm onSubmit={handleSubmit} loading={loading} pickedLocation={pickedLocation} />
           </div>
@@ -58,7 +59,7 @@ export default function PredictPage() {
         </div>
 
         {/* Right — Results */}
-        <div className="col-span-3 space-y-4">
+        <div className="lg:col-span-3 space-y-4">
           {error && (
             <div className="bg-red-900/40 border border-red-700 rounded-xl p-4 text-red-300">
               ⚠️ {error}
@@ -72,17 +73,12 @@ export default function PredictPage() {
             </div>
           )}
 
-          {loading && (
-            <div className="bg-gray-800 border border-gray-700 rounded-xl p-12 text-center">
-              <div className="text-5xl mb-3 animate-pulse">🔄</div>
-              <p className="text-gray-400">Running ensemble model...</p>
-            </div>
-          )}
+          {loading && <PredictionSkeleton />}
 
           {result && !loading && (
             <>
               <SeverityCard result={result} />
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <ProbabilityChart probs={result.class_probabilities} />
                 <div className="bg-gray-800 rounded-xl p-5 border border-gray-700 flex flex-col gap-3">
                   <h3 className="text-white font-semibold">Event Details</h3>

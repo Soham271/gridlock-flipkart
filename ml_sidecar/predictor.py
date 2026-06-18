@@ -152,6 +152,12 @@ def predict(payload: dict) -> dict:
         except Exception:
             pass
 
+    # Meta-learner may have been trained on fewer base models (e.g. 3 without TabNet)
+    n_meta_feats = getattr(meta, "n_features_in_", len(blocks) * 4)
+    n_models = n_meta_feats // 4
+    if len(blocks) > n_models:
+        blocks = blocks[:n_models]
+
     meta_feat = np.hstack(blocks)
     sev_pred  = int(meta.predict(meta_feat)[0])
     sev_probs = meta.predict_proba(meta_feat)[0]

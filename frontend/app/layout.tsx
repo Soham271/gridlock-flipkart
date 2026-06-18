@@ -9,6 +9,7 @@ const inter = Inter({ subsets: ["latin"] })
 export const metadata: Metadata = {
   title: "ASTRAM Gridlock — Bengaluru Traffic Intelligence",
   description: "Event-driven congestion prediction and resource recommendation system",
+  icons: { icon: "/favicon.svg" },
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
