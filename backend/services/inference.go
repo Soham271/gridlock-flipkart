@@ -50,13 +50,23 @@ func Infer(req models.PredictRequest) (*models.PredictResponse, error) {
 func GetMeta() (*models.MetaResponse, error) {
 	resp, err := httpClient.Get(sidecarURL() + "/meta")
 	if err != nil {
-		return nil, fmt.Errorf("sidecar unreachable: %w", err)
+		return nil, fmt.Errorf("ML service unavailable: %w", err)
 	}
 	defer resp.Body.Close()
 
+	if resp.StatusCode != http.StatusOK {
+		raw, _ := io.ReadAll(resp.Body)
+		return nil, fmt.Errorf(
+			"sidecar error %d: %s",
+			resp.StatusCode,
+			string(raw),
+		)
+	}
+
 	var meta models.MetaResponse
 	if err := json.NewDecoder(resp.Body).Decode(&meta); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("decode meta response: %w", err)
 	}
+
 	return &meta, nil
 }
