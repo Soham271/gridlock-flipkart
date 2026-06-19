@@ -1,55 +1,45 @@
 "use client"
-import { BarChart, Bar, XAxis, YAxis, Cell, Tooltip, ResponsiveContainer, LabelList } from "recharts"
+import { BarChart, Bar, XAxis, YAxis, Cell, Tooltip, ResponsiveContainer } from "recharts"
 import { SEVERITY_COLORS } from "@/lib/severity"
-import { BarChart2 } from "lucide-react"
 
 export default function ProbabilityChart({ probs }: { probs: Record<string, number> }) {
   const data = Object.entries(probs).map(([name, value]) => ({
     name,
     value: parseFloat((value * 100).toFixed(1)),
-    fill: SEVERITY_COLORS[name] ?? "#888",
+    fill: SEVERITY_COLORS[name] ?? "#52525b",
   }))
 
-  const CustomTooltip = ({ active, payload, label }: any) => {
-    if (!active || !payload?.length) return null
-    return (
-      <div className="glass rounded-xl px-3 py-2 text-xs border border-white/10">
-        <p className="text-gray-400 mb-0.5">{label}</p>
-        <p className="text-white font-bold">{payload[0].value}%</p>
-      </div>
-    )
-  }
-
   return (
-    <div className="glass rounded-2xl p-5 border border-white/8 animate-fade-in-up">
-      <div className="flex items-center gap-2 mb-4">
-        <BarChart2 size={14} className="text-orange-400" />
-        <h3 className="text-white font-semibold">Class Probabilities</h3>
+    <div className="surface rounded anim-in">
+      <div className="px-4 py-3 border-b border-[#1c1c21]">
+        <span className="text-xs font-medium text-[#a1a1aa]">Class Probabilities</span>
       </div>
-      <ResponsiveContainer width="100%" height={175}>
-        <BarChart data={data} margin={{ top: 12, right: 8, left: -18, bottom: 4 }}>
-          <XAxis
-            dataKey="name"
-            tick={{ fill: "#6b7280", fontSize: 11 }}
-            axisLine={false} tickLine={false}
-          />
-          <YAxis
-            tick={{ fill: "#6b7280", fontSize: 10 }}
-            axisLine={false} tickLine={false}
-            domain={[0, 100]} unit="%"
-          />
-          <Tooltip content={<CustomTooltip />} cursor={{ fill: "rgba(255,255,255,0.04)" }} />
-          <Bar dataKey="value" radius={[6, 6, 2, 2]} maxBarSize={48}>
-            {data.map((d, i) => <Cell key={i} fill={d.fill} fillOpacity={0.85} />)}
-            <LabelList
-              dataKey="value"
-              position="top"
-              formatter={(v: any) => Number(v) > 5 ? `${v}%` : ""}
-              style={{ fill: "#9ca3af", fontSize: 10 }}
+      <div className="p-4">
+        <ResponsiveContainer width="100%" height={160}>
+          <BarChart data={data} margin={{ top: 10, right: 4, left: -22, bottom: 0 }}>
+            <XAxis
+              dataKey="name"
+              tick={{ fill: "#52525b", fontSize: 10 }}
+              axisLine={false} tickLine={false}
             />
-          </Bar>
-        </BarChart>
-      </ResponsiveContainer>
+            <YAxis
+              tick={{ fill: "#52525b", fontSize: 9 }}
+              axisLine={false} tickLine={false}
+              domain={[0, 100]} unit="%"
+            />
+            <Tooltip
+              contentStyle={{ background: "#0f0f12", border: "1px solid #1c1c21", borderRadius: 4, fontSize: 11 }}
+              labelStyle={{ color: "#a1a1aa" }}
+              itemStyle={{ color: "#e4e4e7" }}
+              formatter={(v: any) => [`${v}%`, "Probability"]}
+              cursor={{ fill: "rgba(255,255,255,0.02)" }}
+            />
+            <Bar dataKey="value" radius={[2, 2, 0, 0]} maxBarSize={36}>
+              {data.map((d, i) => <Cell key={i} fill={d.fill} fillOpacity={0.75} />)}
+            </Bar>
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
     </div>
   )
 }

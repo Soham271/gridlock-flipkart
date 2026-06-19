@@ -1,94 +1,81 @@
 "use client"
 import { useEffect, useState } from "react"
 import { PredictResponse } from "@/types"
-import { SEVERITY_BORDER, SEVERITY_EMOJI } from "@/lib/severity"
 
-const SEVERITY_GRADIENT: Record<string, string> = {
-  Low:      "from-green-500/20 to-transparent",
-  Medium:   "from-yellow-500/20 to-transparent",
-  High:     "from-orange-500/20 to-transparent",
-  Critical: "from-red-500/20 to-transparent",
+const SEV_COLOR: Record<string, string> = {
+  Low:      "#4ade80",
+  Medium:   "#facc15",
+  High:     "#fb923c",
+  Critical: "#f87171",
 }
 
-const SEVERITY_BAR_COLOR: Record<string, string> = {
-  Low:      "#22c55e",
-  Medium:   "#eab308",
-  High:     "#f97316",
-  Critical: "#ef4444",
+const SEV_TEXT: Record<string, string> = {
+  Low:      "text-[#4ade80]",
+  Medium:   "text-[#facc15]",
+  High:     "text-[#fb923c]",
+  Critical: "text-[#f87171]",
 }
 
-const SEVERITY_TEXT_COLOR: Record<string, string> = {
-  Low:      "text-green-400",
-  Medium:   "text-yellow-400",
-  High:     "text-orange-400",
-  Critical: "text-red-400",
-}
-
-const SEVERITY_GLOW: Record<string, string> = {
-  Low:      "glow-green",
-  Medium:   "glow-yellow",
-  High:     "glow-orange",
-  Critical: "glow-red",
+const SEV_BORDER: Record<string, string> = {
+  Low:      "border-l-[#4ade80]",
+  Medium:   "border-l-[#facc15]",
+  High:     "border-l-[#fb923c]",
+  Critical: "border-l-[#f87171]",
 }
 
 export default function SeverityCard({ result }: { result: PredictResponse }) {
   const { severity_label, severity_level, confidence, recommendations } = result
-  const [barWidth, setBarWidth] = useState(0)
-  const textClass = SEVERITY_TEXT_COLOR[severity_label] ?? "text-gray-400"
-  const glowClass = SEVERITY_GLOW[severity_label] ?? ""
+  const [bar, setBar] = useState(0)
 
   useEffect(() => {
-    const t = setTimeout(() => setBarWidth(confidence * 100), 100)
+    const t = setTimeout(() => setBar(confidence * 100), 80)
     return () => clearTimeout(t)
   }, [confidence])
 
   return (
-    <div className={`relative overflow-hidden glass rounded-2xl border-2 ${SEVERITY_BORDER[severity_label] ?? "border-gray-700"} ${glowClass} animate-scale-in`}>
-      {/* Background gradient */}
-      <div className={`absolute inset-0 bg-gradient-to-br ${SEVERITY_GRADIENT[severity_label] ?? ""} pointer-events-none`} />
-
-      <div className="relative p-6">
-        {/* Top row */}
-        <div className="flex items-start justify-between mb-5">
-          <div>
-            <p className="text-gray-500 text-xs uppercase tracking-widest mb-2">Congestion Severity</p>
-            <div className={`flex items-center gap-3 ${textClass}`}>
-              <span className="text-5xl">{SEVERITY_EMOJI[severity_label]}</span>
-              <div>
-                <span className="text-4xl font-black tracking-tight">{severity_label.toUpperCase()}</span>
-                <p className="text-gray-500 text-xs mt-0.5">Level {severity_level} of 3</p>
-              </div>
-            </div>
-          </div>
-          <div className="text-right">
-            <p className="text-gray-500 text-xs mb-1">Model Confidence</p>
-            <p className={`text-4xl font-black ${textClass}`}>{(confidence * 100).toFixed(1)}%</p>
+    <div className={`surface rounded border-l-2 ${SEV_BORDER[severity_label] ?? "border-l-[#3f3f46]"} anim-in`}>
+      {/* Header row */}
+      <div className="px-5 py-4 flex items-start justify-between border-b border-[#1c1c21]">
+        <div>
+          <p className="text-[10px] text-[#52525b] uppercase tracking-wider mb-2">Congestion Severity</p>
+          <div className="flex items-baseline gap-2.5">
+            <span className={`text-3xl font-bold tracking-tight ${SEV_TEXT[severity_label]}`}>
+              {severity_label.toUpperCase()}
+            </span>
+            <span className="text-xs text-[#52525b]">Level {severity_level} / 3</span>
           </div>
         </div>
-
-        {/* Confidence bar */}
-        <div className="mb-5">
-          <div className="flex justify-between text-xs text-gray-600 mb-1.5">
-            <span>0%</span><span>50%</span><span>100%</span>
-          </div>
-          <div className="w-full bg-white/5 rounded-full h-2.5 overflow-hidden">
-            <div
-              className="h-2.5 rounded-full transition-all duration-1000 ease-out"
-              style={{ width: `${barWidth}%`, background: SEVERITY_BAR_COLOR[severity_label] ?? "#888" }}
-            />
-          </div>
+        <div className="text-right">
+          <p className="text-[10px] text-[#52525b] uppercase tracking-wider mb-2">Confidence</p>
+          <span className={`text-2xl font-bold tabular-nums ${SEV_TEXT[severity_label]}`}>
+            {(confidence * 100).toFixed(1)}%
+          </span>
         </div>
+      </div>
 
-        {/* Quick stats */}
-        <div className="grid grid-cols-2 gap-3">
-          <div className="bg-white/5 rounded-xl p-3.5 border border-white/8">
-            <p className="text-gray-500 text-xs uppercase tracking-wide mb-1">Officers Required</p>
-            <p className="text-white font-bold text-xl">{recommendations.manpower_min}–{recommendations.manpower_max}</p>
-          </div>
-          <div className="bg-white/5 rounded-xl p-3.5 border border-white/8">
-            <p className="text-gray-500 text-xs uppercase tracking-wide mb-1">Est. Delay</p>
-            <p className="text-white font-bold text-xl">~{recommendations.impact_minutes} min</p>
-          </div>
+      {/* Confidence bar */}
+      <div className="px-5 pt-3.5 pb-1">
+        <div className="w-full bg-[#141418] rounded-full h-[3px] overflow-hidden">
+          <div
+            className="h-[3px] rounded-full anim-bar"
+            style={{ width: `${bar}%`, background: SEV_COLOR[severity_label] ?? "#3f3f46", transition: "width 0.8s cubic-bezier(0.22,1,0.36,1)" }}
+          />
+        </div>
+      </div>
+
+      {/* Key metrics */}
+      <div className="px-5 py-4 grid grid-cols-2 gap-3">
+        <div className="bg-[#141418] rounded px-4 py-3 border border-[#1c1c21]">
+          <p className="text-[10px] text-[#52525b] uppercase tracking-wider mb-1">Officers</p>
+          <p className="text-[#e4e4e7] font-semibold text-lg tabular-nums">
+            {recommendations.manpower_min}–{recommendations.manpower_max}
+          </p>
+        </div>
+        <div className="bg-[#141418] rounded px-4 py-3 border border-[#1c1c21]">
+          <p className="text-[10px] text-[#52525b] uppercase tracking-wider mb-1">Est. Delay</p>
+          <p className="text-[#e4e4e7] font-semibold text-lg tabular-nums">
+            ~{recommendations.impact_minutes} min
+          </p>
         </div>
       </div>
     </div>

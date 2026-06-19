@@ -1,10 +1,15 @@
-import { SEVERITY_EMOJI } from "@/lib/severity"
+const DOT: Record<string, string> = {
+  Low:      "dot-low",
+  Medium:   "dot-medium",
+  High:     "dot-high",
+  Critical: "dot-critical",
+}
 
-const BADGE_STYLES: Record<string, string> = {
-  Low:      "bg-green-500/15 text-green-400 border border-green-500/25",
-  Medium:   "bg-yellow-500/15 text-yellow-400 border border-yellow-500/25",
-  High:     "bg-orange-500/15 text-orange-400 border border-orange-500/25",
-  Critical: "bg-red-500/15 text-red-400 border border-red-500/25",
+const TEXT: Record<string, string> = {
+  Low:      "text-[#4ade80]",
+  Medium:   "text-[#facc15]",
+  High:     "text-[#fb923c]",
+  Critical: "text-[#f87171]",
 }
 
 interface Props {
@@ -13,10 +18,12 @@ interface Props {
 }
 
 export default function SeverityBadge({ label, size = "md" }: Props) {
-  const sizeClass = size === "sm" ? "text-xs px-2 py-0.5 gap-1" : size === "lg" ? "text-sm px-3.5 py-1.5 gap-1.5" : "text-sm px-2.5 py-1 gap-1.5"
+  const dotSize = size === "lg" ? "w-2 h-2" : "w-1.5 h-1.5"
+  const textSize = size === "sm" ? "text-[11px]" : size === "lg" ? "text-sm" : "text-xs"
   return (
-    <span className={`inline-flex items-center rounded-lg font-semibold ${BADGE_STYLES[label] ?? "bg-gray-500/15 text-gray-400 border border-gray-500/25"} ${sizeClass}`}>
-      {SEVERITY_EMOJI[label]} {label}
+    <span className={`inline-flex items-center gap-1.5 font-medium ${textSize} ${TEXT[label] ?? "text-[#71717a]"}`}>
+      <span className={`${dotSize} rounded-full shrink-0 ${DOT[label] ?? "bg-[#71717a]"}`} />
+      {label}
     </span>
   )
 }

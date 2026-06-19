@@ -1,12 +1,11 @@
 "use client"
 import { useState, useEffect } from "react"
 import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 import { PredictRequest, MetaResponse } from "@/types"
 import { getMeta } from "@/lib/api"
 import { validatePredictRequest } from "@/lib/validate"
 import { EVENT_CAUSES, EVENT_TYPES, VEH_TYPES } from "@/lib/severity"
-import { MapPin, Loader2, Zap, Clock, Building2, Car, Calendar, ChevronDown } from "lucide-react"
+import { Loader2 } from "lucide-react"
 
 interface Props {
   onSubmit: (req: PredictRequest) => void
@@ -16,22 +15,15 @@ interface Props {
 
 const now = new Date()
 
-const SectionLabel = ({ icon: Icon, text }: { icon: any; text: string }) => (
-  <div className="flex items-center gap-1.5 mb-3">
-    <Icon size={12} className="text-orange-400" />
-    <span className="text-xs font-semibold text-orange-400/80 uppercase tracking-widest">{text}</span>
+const Field = ({ label, children }: { label: string; children: React.ReactNode }) => (
+  <div>
+    <label className="block text-[11px] text-[#52525b] uppercase tracking-wider mb-1.5">{label}</label>
+    {children}
   </div>
 )
 
-const SelectField = ({ value, onChange, children, className = "" }: any) => (
-  <select
-    value={value}
-    onChange={onChange}
-    className={`w-full bg-white/5 border border-white/10 text-white rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-orange-500/50 focus:ring-1 focus:ring-orange-500/30 transition-all hover:border-white/20 ${className}`}
-  >
-    {children}
-  </select>
-)
+const inputCls = "w-full bg-[#141418] border border-[#1c1c21] text-[#e4e4e7] text-sm rounded px-3 py-2 placeholder:text-[#3f3f46] transition-colors hover:border-[#2a2a32]"
+const selectCls = `${inputCls} cursor-pointer`
 
 export default function EventForm({ onSubmit, loading, pickedLocation }: Props) {
   const [meta, setMeta] = useState<MetaResponse | null>(null)
@@ -68,164 +60,128 @@ export default function EventForm({ onSubmit, loading, pickedLocation }: Props) 
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form onSubmit={handleSubmit} className="space-y-0 divide-y divide-[#1c1c21]">
       {formError && (
-        <div className="bg-red-500/10 border border-red-500/30 rounded-xl px-4 py-3 text-red-400 text-sm flex items-center gap-2 animate-fade-in">
-          <span className="text-red-500">⚠</span> {formError}
+        <div className="px-4 py-2.5 text-[#f87171] text-xs bg-[#1c1010] border-b border-[#2a1515]">
+          {formError}
         </div>
       )}
 
       {/* Location */}
-      <div>
-        <SectionLabel icon={MapPin} text="Location" />
+      <div className="px-4 py-4 space-y-3">
+        <p className="text-[10px] text-[#3f3f46] uppercase tracking-[0.12em] font-medium">Location</p>
         <div className="grid grid-cols-2 gap-2">
-          <div>
-            <label className="text-gray-500 text-xs mb-1 block">Latitude</label>
-            <Input
-              type="number" step="any" placeholder="12.9716"
-              value={form.latitude}
+          <Field label="Latitude">
+            <input type="number" step="any" placeholder="12.9716" value={form.latitude} min={12} max={13} required
               onChange={e => set("latitude", parseFloat(e.target.value))}
-              min={12} max={13}
-              className="bg-white/5 border-white/10 text-white rounded-xl focus:border-orange-500/50 focus:ring-orange-500/20"
-              required
-            />
-          </div>
-          <div>
-            <label className="text-gray-500 text-xs mb-1 block">Longitude</label>
-            <Input
-              type="number" step="any" placeholder="77.5946"
-              value={form.longitude}
+              className={inputCls} />
+          </Field>
+          <Field label="Longitude">
+            <input type="number" step="any" placeholder="77.5946" value={form.longitude} min={77} max={78} required
               onChange={e => set("longitude", parseFloat(e.target.value))}
-              min={77} max={78}
-              className="bg-white/5 border-white/10 text-white rounded-xl focus:border-orange-500/50 focus:ring-orange-500/20"
-              required
-            />
-          </div>
+              className={inputCls} />
+          </Field>
         </div>
         {pickedLocation && (
-          <p className="text-orange-400 text-xs mt-1.5 flex items-center gap-1">
-            <MapPin size={10} /> Location picked from map
-          </p>
+          <p className="text-[10px] text-orange-500">Location set from map</p>
         )}
       </div>
 
       {/* Event */}
-      <div>
-        <SectionLabel icon={Zap} text="Event Details" />
-        <div className="grid grid-cols-1 gap-3">
-          <div>
-            <label className="text-gray-500 text-xs mb-1 block">Event Type</label>
-            <SelectField value={form.event_type} onChange={(e: any) => set("event_type", e.target.value)}>
-              {EVENT_TYPES.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
-            </SelectField>
-          </div>
-          <div>
-            <label className="text-gray-500 text-xs mb-1 block">Event Cause</label>
-            <SelectField value={form.event_cause} onChange={(e: any) => set("event_cause", e.target.value)}>
-              {EVENT_CAUSES.map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
-            </SelectField>
-          </div>
-        </div>
+      <div className="px-4 py-4 space-y-3">
+        <p className="text-[10px] text-[#3f3f46] uppercase tracking-[0.12em] font-medium">Event</p>
+        <Field label="Type">
+          <select value={form.event_type} onChange={e => set("event_type", e.target.value)} className={selectCls}>
+            {EVENT_TYPES.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
+          </select>
+        </Field>
+        <Field label="Cause">
+          <select value={form.event_cause} onChange={e => set("event_cause", e.target.value)} className={selectCls}>
+            {EVENT_CAUSES.map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
+          </select>
+        </Field>
       </div>
 
-      {/* Time */}
-      <div>
-        <SectionLabel icon={Clock} text="Date & Time" />
+      {/* Date & Time */}
+      <div className="px-4 py-4 space-y-3">
+        <p className="text-[10px] text-[#3f3f46] uppercase tracking-[0.12em] font-medium">Date & Time</p>
         <div className="grid grid-cols-4 gap-2">
-          {[
-            { label: "Hour", key: "start_hour", min: 0, max: 23 },
-            { label: "Day",  key: "day",        min: 1, max: 31 },
-            { label: "Month",key: "month",      min: 1, max: 12 },
-          ].map(f => (
-            <div key={f.key}>
-              <label className="text-gray-500 text-xs mb-1 block">{f.label}</label>
-              <Input
-                type="number" min={f.min} max={f.max}
-                value={(form as any)[f.key]}
+          {([
+            { label: "Hour",  key: "start_hour", min: 0,  max: 23 },
+            { label: "Day",   key: "day",        min: 1,  max: 31 },
+            { label: "Month", key: "month",      min: 1,  max: 12 },
+          ] as const).map(f => (
+            <Field key={f.key} label={f.label}>
+              <input type="number" min={f.min} max={f.max} value={(form as any)[f.key]}
                 onChange={e => set(f.key as keyof PredictRequest, parseInt(e.target.value))}
-                className="bg-white/5 border-white/10 text-white rounded-xl focus:border-orange-500/50 focus:ring-orange-500/20"
-              />
-            </div>
+                className={inputCls} />
+            </Field>
           ))}
-          <div>
-            <label className="text-gray-500 text-xs mb-1 block">Weekday</label>
-            <SelectField value={form.day_of_week} onChange={(e: any) => set("day_of_week", parseInt(e.target.value))}>
+          <Field label="Weekday">
+            <select value={form.day_of_week} onChange={e => set("day_of_week", parseInt(e.target.value))} className={selectCls}>
               {["Mon","Tue","Wed","Thu","Fri","Sat","Sun"].map((d,i) => <option key={i} value={i}>{d}</option>)}
-            </SelectField>
-          </div>
+            </select>
+          </Field>
         </div>
       </div>
 
-      {/* Location Context */}
-      <div>
-        <SectionLabel icon={Building2} text="Location Context" />
-        <div className="grid grid-cols-1 gap-3">
-          <div className="grid grid-cols-2 gap-2">
-            <div>
-              <label className="text-gray-500 text-xs mb-1 block">Corridor</label>
-              <SelectField value={form.corridor ?? ""} onChange={(e: any) => set("corridor", e.target.value || undefined)}>
-                <option value="">Non-corridor</option>
-                {(meta?.corridors ?? []).map(c => <option key={c} value={c}>{c}</option>)}
-              </SelectField>
-            </div>
-            <div>
-              <label className="text-gray-500 text-xs mb-1 block">Zone</label>
-              <SelectField value={form.zone ?? ""} onChange={(e: any) => set("zone", e.target.value || undefined)}>
-                <option value="">Unknown</option>
-                {(meta?.zones ?? []).map(z => <option key={z} value={z}>{z}</option>)}
-              </SelectField>
-            </div>
-          </div>
-          <div>
-            <label className="text-gray-500 text-xs mb-1 block">Police Station</label>
-            <SelectField value={form.police_station ?? ""} onChange={(e: any) => set("police_station", e.target.value || undefined)}>
-              <option value="">Unknown</option>
-              {(meta?.police_stations ?? []).map(p => <option key={p} value={p}>{p}</option>)}
-            </SelectField>
-          </div>
-        </div>
-      </div>
-
-      {/* Vehicle & Duration */}
-      <div>
-        <SectionLabel icon={Car} text="Additional Info" />
+      {/* Context */}
+      <div className="px-4 py-4 space-y-3">
+        <p className="text-[10px] text-[#3f3f46] uppercase tracking-[0.12em] font-medium">Location Context</p>
         <div className="grid grid-cols-2 gap-2">
-          <div>
-            <label className="text-gray-500 text-xs mb-1 block">Vehicle Type</label>
-            <SelectField value={form.veh_type ?? ""} onChange={(e: any) => set("veh_type", e.target.value || undefined)}>
+          <Field label="Corridor">
+            <select value={form.corridor ?? ""} onChange={e => set("corridor", e.target.value || undefined)} className={selectCls}>
+              <option value="">Non-corridor</option>
+              {(meta?.corridors ?? []).map(c => <option key={c} value={c}>{c}</option>)}
+            </select>
+          </Field>
+          <Field label="Zone">
+            <select value={form.zone ?? ""} onChange={e => set("zone", e.target.value || undefined)} className={selectCls}>
+              <option value="">Unknown</option>
+              {(meta?.zones ?? []).map(z => <option key={z} value={z}>{z}</option>)}
+            </select>
+          </Field>
+        </div>
+        <Field label="Police Station">
+          <select value={form.police_station ?? ""} onChange={e => set("police_station", e.target.value || undefined)} className={selectCls}>
+            <option value="">Unknown</option>
+            {(meta?.police_stations ?? []).map(p => <option key={p} value={p}>{p}</option>)}
+          </select>
+        </Field>
+      </div>
+
+      {/* Additional */}
+      <div className="px-4 py-4 space-y-3">
+        <p className="text-[10px] text-[#3f3f46] uppercase tracking-[0.12em] font-medium">Additional</p>
+        <div className="grid grid-cols-2 gap-2">
+          <Field label="Vehicle Type">
+            <select value={form.veh_type ?? ""} onChange={e => set("veh_type", e.target.value || undefined)} className={selectCls}>
               {VEH_TYPES.map(v => <option key={v.value} value={v.value}>{v.label}</option>)}
-            </SelectField>
-          </div>
-          <div>
-            <label className="text-gray-500 text-xs mb-1 block">Duration (mins)</label>
-            <Input
-              type="number" min={0} placeholder="e.g. 120"
+            </select>
+          </Field>
+          <Field label="Duration (min)">
+            <input type="number" min={0} placeholder="e.g. 120"
               value={form.duration_mins ?? ""}
               onChange={e => set("duration_mins", e.target.value ? parseFloat(e.target.value) : undefined)}
-              className="bg-white/5 border-white/10 text-white rounded-xl focus:border-orange-500/50 focus:ring-orange-500/20"
-            />
-          </div>
+              className={inputCls} />
+          </Field>
         </div>
       </div>
 
       {/* Submit */}
-      <button
-        type="submit"
-        disabled={loading}
-        className="w-full btn-shimmer text-white font-bold py-3.5 rounded-xl text-sm flex items-center justify-center gap-2.5 disabled:opacity-60 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none"
-      >
-        {loading ? (
-          <>
-            <Loader2 size={16} className="animate-spin" />
-            Analyzing Traffic Data...
-          </>
-        ) : (
-          <>
-            <Zap size={15} />
-            Predict Congestion
-          </>
-        )}
-      </button>
+      <div className="px-4 py-4">
+        <button
+          type="submit"
+          disabled={loading}
+          className="w-full bg-orange-500 hover:bg-orange-600 disabled:bg-[#1c1c21] disabled:text-[#52525b] text-white text-sm font-medium py-2.5 rounded transition-colors flex items-center justify-center gap-2 disabled:cursor-not-allowed"
+        >
+          {loading ? (
+            <><Loader2 size={14} className="animate-spin" /> Analyzing...</>
+          ) : (
+            "Run Prediction"
+          )}
+        </button>
+      </div>
     </form>
   )
 }
