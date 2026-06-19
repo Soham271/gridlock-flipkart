@@ -11,6 +11,7 @@ interface Props {
   onSubmit: (req: PredictRequest) => void
   loading: boolean
   pickedLocation?: { lat: number; lng: number } | null
+  externalPreset?: PredictRequest | null
 }
 
 const now = new Date()
@@ -25,7 +26,7 @@ const Field = ({ label, children }: { label: string; children: React.ReactNode }
 const inputCls = "w-full bg-[#141418] border border-[#1c1c21] text-[#e4e4e7] text-sm rounded px-3 py-2 placeholder:text-[#3f3f46] transition-colors hover:border-[#2a2a32]"
 const selectCls = `${inputCls} cursor-pointer`
 
-export default function EventForm({ onSubmit, loading, pickedLocation }: Props) {
+export default function EventForm({ onSubmit, loading, pickedLocation, externalPreset }: Props) {
   const [meta, setMeta] = useState<MetaResponse | null>(null)
   const [formError, setFormError] = useState<string | null>(null)
   const [form, setForm] = useState<PredictRequest>({
@@ -48,6 +49,9 @@ export default function EventForm({ onSubmit, loading, pickedLocation }: Props) 
   useEffect(() => {
     if (pickedLocation) setForm(f => ({ ...f, latitude: pickedLocation.lat, longitude: pickedLocation.lng }))
   }, [pickedLocation])
+  useEffect(() => {
+    if (externalPreset) setForm(externalPreset)
+  }, [externalPreset])
 
   const set = (k: keyof PredictRequest, v: any) => setForm(f => ({ ...f, [k]: v }))
 
