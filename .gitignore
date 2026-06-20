@@ -6,9 +6,7 @@ __pycache__/
 venv/
 *.egg-info/
 
-# ML models (large binary files)
-astram_models_bundle/*.pkl
-ml_sidecar/astram_models_bundle/*.pkl
+
 
 # Node
 node_modules/
