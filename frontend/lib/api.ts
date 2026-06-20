@@ -1,6 +1,10 @@
 import { PredictRequest, PredictResponse, MetaResponse } from "@/types"
 
-const BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080"
+let BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080"
+if (!BASE.startsWith("http://") && !BASE.startsWith("https://")) {
+  BASE = "https://" + BASE
+}
+BASE = BASE.replace(/\/+$/, "")
 
 export async function predictEvent(req: PredictRequest): Promise<PredictResponse> {
   const res = await fetch(`${BASE}/api/predict`, {

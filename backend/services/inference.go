@@ -7,6 +7,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/gridlock/backend/models"
@@ -15,8 +16,9 @@ import (
 var httpClient = &http.Client{Timeout: 5 * time.Second}
 
 func sidecarURL() string {
-	if url := os.Getenv("SIDECAR_URL"); url != "" {
-		return url
+	url := os.Getenv("SIDECAR_URL")
+	if url != "" {
+		return strings.TrimRight(url, "/")
 	}
 	return "http://localhost:8001"
 }
