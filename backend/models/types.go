@@ -47,3 +47,15 @@ type MetaResponse struct {
 	PoliceSations  []string `json:"police_stations"`
 	Zones          []string `json:"zones"`
 }
+
+// LocationSuggestion from /locate — auto-fill from map click
+type LocationSuggestion struct {
+	Latitude         float64  `json:"latitude"`
+	Longitude        float64  `json:"longitude"`
+	PoliceStation    string   `json:"police_station"`
+	Zone             string   `json:"zone"`
+	Corridor         *string  `json:"corridor,omitempty"`
+	Junction         *string  `json:"junction,omitempty"`
+	LocationCluster  int      `json:"location_cluster"`
+	IsCorridor       bool     `json:"is_corridor"`
+}

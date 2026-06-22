@@ -1,6 +1,24 @@
 import { PredictRequest } from "@/types"
+import { buildEventDateTime } from "@/components/prediction/EventDateTimePicker"
 
-export function validatePredictRequest(form: PredictRequest): string | null {
+export function validatePredictRequest(
+  form: PredictRequest,
+  opts?: { dateTimeConfirmed?: boolean },
+): string | null {
+  if (!opts?.dateTimeConfirmed) {
+    return "Please select date and time (required)"
+  }
+
+  const eventAt = buildEventDateTime({
+    month: form.month,
+    day: form.day,
+    start_hour: form.start_hour,
+    start_minute: form.start_minute ?? 0,
+    day_of_week: form.day_of_week,
+  })
+  if (eventAt.getTime() < Date.now()) {
+    return "Event date & time must be now or in the future"
+  }
   if (!Number.isFinite(form.latitude) || form.latitude < 12 || form.latitude > 14) {
     return "Latitude must be between 12 and 14 (Bengaluru area)"
   }

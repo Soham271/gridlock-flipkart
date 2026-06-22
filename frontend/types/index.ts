@@ -4,6 +4,7 @@ export interface PredictRequest {
   event_type: string
   event_cause: string
   start_hour: number
+  start_minute?: number
   day_of_week: number
   month: number
   day: number
@@ -40,6 +41,17 @@ export interface MetaResponse {
   corridors: string[]
   police_stations: string[]
   zones: string[]
+}
+
+export interface LocationSuggestion {
+  latitude: number
+  longitude: number
+  police_station: string
+  zone: string
+  corridor?: string | null
+  junction?: string | null
+  location_cluster: number
+  is_corridor: boolean
 }
 
 export interface HistoryEntry extends PredictResponse {

@@ -32,6 +32,7 @@ func main() {
 		api.GET("/health",  handlers.Health)
 		api.POST("/predict", handlers.Predict)
 		api.GET("/meta",    handlers.GetMeta)
+		api.GET("/locate",  handlers.GetLocate)
 	}
 
 	port := os.Getenv("PORT")

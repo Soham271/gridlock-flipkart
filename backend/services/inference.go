@@ -72,3 +72,23 @@ func GetMeta() (*models.MetaResponse, error) {
 
 	return &meta, nil
 }
+
+// Locate suggests police station, zone, and corridor for map coordinates
+func Locate(lat, lng float64) (*models.LocationSuggestion, error) {
+	resp, err := httpClient.Get(fmt.Sprintf("%s/locate?lat=%f&lng=%f", sidecarURL(), lat, lng))
+	if err != nil {
+		return nil, fmt.Errorf("ML service unavailable: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		raw, _ := io.ReadAll(resp.Body)
+		return nil, fmt.Errorf("sidecar error %d: %s", resp.StatusCode, string(raw))
+	}
+
+	var result models.LocationSuggestion
+	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
+		return nil, fmt.Errorf("decode locate response: %w", err)
+	}
+	return &result, nil
+}

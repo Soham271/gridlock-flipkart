@@ -52,7 +52,7 @@ export default function PredictDetailPage() {
   const inputRows = [
     { label: "Event Cause", value: inp.event_cause.replace(/_/g, " "), icon: IconBuildingArch },
     { label: "Event Type",  value: inp.event_type,                      icon: IconAlertCircle },
-    { label: "Time",        value: `${String(inp.start_hour).padStart(2, "0")}:00`, icon: IconClock },
+    { label: "Time",        value: `${String(inp.start_hour).padStart(2, "0")}:${String(inp.start_minute ?? 0).padStart(2, "0")}`, icon: IconClock },
     { label: "Day",         value: DAYS[inp.day_of_week] ?? `Day ${inp.day_of_week}`, icon: IconCalendar },
     { label: "Date",        value: `${inp.day} ${MONTHS[inp.month - 1] ?? ""}`,        icon: IconCalendar },
     { label: "Coordinates", value: `${inp.latitude.toFixed(4)}, ${inp.longitude.toFixed(4)}`, icon: IconMapPin },

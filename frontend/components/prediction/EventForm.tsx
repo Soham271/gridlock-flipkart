@@ -1,16 +1,18 @@
 "use client"
 import { useState, useEffect } from "react"
-import { Input } from "@/components/ui/input"
-import { PredictRequest, MetaResponse } from "@/types"
+import { PredictRequest, MetaResponse, LocationSuggestion } from "@/types"
 import { getMeta } from "@/lib/api"
 import { validatePredictRequest } from "@/lib/validate"
 import { EVENT_CAUSES, EVENT_TYPES, VEH_TYPES } from "@/lib/severity"
+import EventDateTimePicker from "@/components/prediction/EventDateTimePicker"
 import { Loader2 } from "lucide-react"
 
 interface Props {
   onSubmit: (req: PredictRequest) => void
   loading: boolean
   pickedLocation?: { lat: number; lng: number } | null
+  locationSuggestion?: LocationSuggestion | null
+  locating?: boolean
   externalPreset?: PredictRequest | null
 }
 
@@ -26,15 +28,18 @@ const Field = ({ label, children }: { label: string; children: React.ReactNode }
 const inputCls = "w-full bg-[var(--bg-base)] border border-[var(--border-subtle)] text-[var(--text-primary)] text-sm rounded px-3 py-2 placeholder:text-[var(--text-tertiary)] transition-colors hover:border-[var(--border-strong)] focus:border-[var(--accent-signal)] focus:outline-none"
 const selectCls = `${inputCls} cursor-pointer`
 
-export default function EventForm({ onSubmit, loading, pickedLocation, externalPreset }: Props) {
+export default function EventForm({ onSubmit, loading, pickedLocation, locationSuggestion, locating, externalPreset }: Props) {
   const [meta, setMeta] = useState<MetaResponse | null>(null)
   const [formError, setFormError] = useState<string | null>(null)
+  const [dateTimeError, setDateTimeError] = useState<string | null>(null)
+  const [dateTimeConfirmed, setDateTimeConfirmed] = useState(false)
   const [form, setForm] = useState<PredictRequest>({
     latitude: 12.9716,
     longitude: 77.5946,
     event_type: "planned",
     event_cause: "public_event",
     start_hour: now.getHours(),
+    start_minute: 0,
     day_of_week: now.getDay() === 0 ? 6 : now.getDay() - 1,
     month: now.getMonth() + 1,
     day: now.getDate(),
@@ -46,20 +51,66 @@ export default function EventForm({ onSubmit, loading, pickedLocation, externalP
   })
 
   useEffect(() => { getMeta().then(setMeta).catch(() => { }) }, [])
+
   useEffect(() => {
-    if (pickedLocation) setForm(f => ({ ...f, latitude: pickedLocation.lat, longitude: pickedLocation.lng }))
-  }, [pickedLocation])
-  useEffect(() => {
-    if (externalPreset) setForm(externalPreset)
+    if (externalPreset) {
+      setForm(externalPreset)
+      setDateTimeConfirmed(true)
+      setDateTimeError(null)
+    }
   }, [externalPreset])
+
+  useEffect(() => {
+    const d = new Date()
+    const currentDefaults = {
+      start_hour: d.getHours(),
+      start_minute: 0,
+      day_of_week: d.getDay() === 0 ? 6 : d.getDay() - 1,
+      month: d.getMonth() + 1,
+      day: d.getDate(),
+    }
+
+    if (locationSuggestion) {
+      setForm(f => ({
+        ...f,
+        latitude: locationSuggestion.latitude,
+        longitude: locationSuggestion.longitude,
+        police_station: locationSuggestion.police_station,
+        zone: locationSuggestion.zone,
+        corridor: locationSuggestion.corridor ?? undefined,
+        junction: locationSuggestion.junction ?? undefined,
+        ...(!externalPreset ? currentDefaults : {})
+      }))
+      if (!externalPreset) {
+        setDateTimeConfirmed(false)
+        setDateTimeError(null)
+      }
+    } else if (pickedLocation) {
+      setForm(f => ({
+        ...f,
+        latitude: pickedLocation.lat,
+        longitude: pickedLocation.lng,
+        ...(!externalPreset ? currentDefaults : {})
+      }))
+      if (!externalPreset) {
+        setDateTimeConfirmed(false)
+        setDateTimeError(null)
+      }
+    }
+  }, [pickedLocation?.lat, pickedLocation?.lng, locationSuggestion, externalPreset])
 
   const set = (k: keyof PredictRequest, v: any) => setForm(f => ({ ...f, [k]: v }))
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    const err = validatePredictRequest(form)
-    if (err) { setFormError(err); return }
+    const err = validatePredictRequest(form, { dateTimeConfirmed })
+    if (err) {
+      if (err.includes("date and time")) setDateTimeError(err)
+      else setFormError(err)
+      return
+    }
     setFormError(null)
+    setDateTimeError(null)
     onSubmit(form)
   }
 
@@ -88,7 +139,21 @@ export default function EventForm({ onSubmit, loading, pickedLocation, externalP
             </Field>
           </div>
           {pickedLocation && (
-            <p className="text-[10px] text-[var(--accent-signal)] font-medium bg-[var(--accent-signal)]/10 px-2 py-1 rounded inline-block">Location set from map</p>
+            <div className="space-y-2">
+              <p className="text-[10px] text-[var(--accent-signal)] font-medium bg-[var(--accent-signal)]/10 px-2 py-1 rounded inline-block">
+                {locating ? "Detecting nearby context…" : "Location set from map"}
+              </p>
+              {locationSuggestion && !locating && (
+                <div className="text-[10px] text-[var(--text-secondary)] bg-[var(--bg-base)] border border-[var(--border-subtle)] rounded px-2.5 py-2 leading-relaxed">
+                  <span className="text-[var(--text-primary)] font-medium">Auto-suggested: </span>
+                  {locationSuggestion.police_station}
+                  {" · "}{locationSuggestion.zone}
+                  {locationSuggestion.corridor ? ` · ${locationSuggestion.corridor}` : " · Non-corridor"}
+                  {locationSuggestion.junction ? ` · ${locationSuggestion.junction}` : ""}
+                  {" · "}Cluster {locationSuggestion.location_cluster}
+                </div>
+              )}
+            </div>
           )}
         </div>
 
@@ -109,29 +174,27 @@ export default function EventForm({ onSubmit, loading, pickedLocation, externalP
           </div>
         </div>
 
-        {/* Date & Time */}
-        <div className="px-4 py-4 space-y-3 bg-[var(--bg-elevated-1)]">
-          <p className="text-[10px] text-[var(--text-secondary)] uppercase tracking-[0.12em] font-medium">Date & Time</p>
-          <Field label="Select Event Time">
-            <input
-              type="datetime-local"
-              min={new Date(new Date().getTime() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16)}
-              value={`${new Date().getFullYear()}-${form.month.toString().padStart(2, '0')}-${form.day.toString().padStart(2, '0')}T${form.start_hour.toString().padStart(2, '0')}:00`}
-              onChange={(e) => {
-                if (!e.target.value) return;
-                const d = new Date(e.target.value);
-                setForm(f => ({
-                  ...f,
-                  month: d.getMonth() + 1,
-                  day: d.getDate(),
-                  start_hour: d.getHours(),
-                  day_of_week: d.getDay() === 0 ? 6 : d.getDay() - 1 // 0=Mon, 6=Sun
-                }));
-              }}
-              className={`${inputCls} font-data`}
-              style={{ colorScheme: 'dark' }} // Forces dark theme for native calendar popups
-            />
-          </Field>
+        {/* Date & Time — tap row to open popup */}
+        <div className="px-4 py-4 space-y-2 bg-[var(--bg-elevated-1)]">
+          <p className="text-[10px] text-[var(--text-secondary)] uppercase tracking-[0.12em] font-medium">
+            Date &amp; Time <span className="text-[var(--accent-signal)]">*</span>
+          </p>
+          <EventDateTimePicker
+            value={{
+              month: form.month,
+              day: form.day,
+              start_hour: form.start_hour,
+              start_minute: form.start_minute ?? 0,
+              day_of_week: form.day_of_week,
+            }}
+            confirmed={dateTimeConfirmed}
+            onConfirmedChange={(v) => {
+              setDateTimeConfirmed(v)
+              if (v) setDateTimeError(null)
+            }}
+            onChange={(v) => setForm(f => ({ ...f, ...v }))}
+            error={dateTimeError}
+          />
         </div>
 
         {/* Context */}

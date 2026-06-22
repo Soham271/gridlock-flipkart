@@ -6,6 +6,7 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from typing import Optional
 import loader
+import locate
 import predictor
 
 
@@ -39,6 +40,14 @@ class InferRequest(BaseModel):
 def infer(req: InferRequest):
     try:
         return predictor.predict(req.model_dump())
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/locate")
+def locate_point(lat: float, lng: float):
+    try:
+        return locate.suggest_location(lat, lng)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
