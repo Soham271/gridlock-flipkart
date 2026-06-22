@@ -11,6 +11,7 @@ import { predictEvent, locateAt } from "@/lib/api"
 import { saveEntry } from "@/lib/history"
 import { IconScanEye, IconMapPin, IconChevronDown } from "@tabler/icons-react"
 import { pageContainer as container, fadeUp as item } from "@/lib/motion"
+import Loader from "@/components/prediction/Loader"
 
 const BengaluruMap = dynamic(() => import("@/components/map/BengaluruMap"), { ssr: false })
 
@@ -30,6 +31,8 @@ export default function PredictPage() {
   const [savedId, setSavedId] = useState<string | null>(null)
   const [closing, setClosing] = useState(false)
 
+  const [isNavigating, setIsNavigating] = useState(false)
+
   const handleSubmit = async (req: PredictRequest) => {
     setLoading(true)
     setError(null)
@@ -37,6 +40,7 @@ export default function PredictPage() {
     setSavedId(null)
     setPopupOpen(true)
     setClosing(false)
+    setIsNavigating(false)
     try {
       const res = await predictEvent(req)
       const entry = saveEntry(req, res)
@@ -57,6 +61,7 @@ export default function PredictPage() {
     setDemosOpen(false)
     setResult(null)
     setError(null)
+    setIsNavigating(false)
   }
 
   const handleMapClick = useCallback(async (lat: number, lng: number) => {
@@ -77,6 +82,7 @@ export default function PredictPage() {
 
   const handleViewFull = useCallback(() => {
     if (savedId) {
+      setIsNavigating(true)
       setClosing(true)
       setTimeout(() => {
         setPopupOpen(false)
@@ -92,6 +98,26 @@ export default function PredictPage() {
 
   return (
     <>
+      <AnimatePresence>
+        {isNavigating && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="fixed inset-0 flex flex-col items-center justify-center p-6 z-[11000]"
+            style={{ backdropFilter: "blur(8px)", background: "rgba(0,0,0,0.75)" }}
+          >
+            <div className="flex flex-col items-center justify-center gap-6">
+              <Loader />
+              <p className="text-sm font-medium text-[var(--text-secondary)] animate-pulse">
+                Loading analysis details...
+              </p>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <AnalysisPopup
         open={popupOpen && !closing}
         loading={loading}
