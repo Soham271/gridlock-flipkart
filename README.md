@@ -239,7 +239,7 @@ Website url:-https://gridlock-flipkart.vercel.app
 
 ### Railway (Go Backend + Python ML Sidecar)
 
-1. Connect your GitHub repo to [Railway](https://railway.app)
+1. Connect your GitHub repo to [Railway](https://railway.app) (if not working plz referred the yt video (https://youtu.be/a8yFu3nLgSA?si=P-rdmIBIiljeW4bG))
 2. Create two services pointing to `backend/` and `ml_sidecar/`
 3. Set env var: `SIDECAR_URL=http://<sidecar-service>.railway.internal:8001`
 
