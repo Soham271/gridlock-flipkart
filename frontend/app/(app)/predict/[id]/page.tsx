@@ -4,6 +4,7 @@ import { useParams, useRouter } from "next/navigation"
 import { motion, useReducedMotion } from "framer-motion"
 import { HistoryEntry } from "@/types"
 import { getHistory } from "@/lib/history"
+import { downloadReport } from "@/lib/report"
 import SeverityCard from "@/components/prediction/SeverityCard"
 import ProbabilityChart from "@/components/prediction/ProbabilityChart"
 import ResourcePanel from "@/components/prediction/ResourcePanel"
@@ -11,6 +12,7 @@ import SeverityBadge from "@/components/shared/SeverityBadge"
 import {
   IconArrowLeft,
   IconEdit,
+  IconFileDownload,
   IconMapPin,
   IconClock,
   IconCalendar,
@@ -19,7 +21,8 @@ import {
 } from "@tabler/icons-react"
 import { pageContainer as container, fadeUp as item } from "@/lib/motion"
 
-const DAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
+// day_of_week is Monday-first (see toFormWeekday in EventDateTimePicker).
+const DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
 
 export default function PredictDetailPage() {
@@ -87,6 +90,12 @@ export default function PredictDetailPage() {
         </div>
         <div className="flex items-center gap-2 pt-6">
           <SeverityBadge label={entry.severity_label} />
+          <button
+            onClick={() => downloadReport(entry)}
+            className="btn-secondary gap-1.5"
+          >
+            <IconFileDownload size={13} /> Download Report
+          </button>
           <button
             onClick={() => router.push("/predict")}
             className="btn-secondary gap-1.5"

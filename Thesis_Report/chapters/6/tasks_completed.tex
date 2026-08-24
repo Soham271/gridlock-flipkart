@@ -1,0 +1,25 @@
+\chapter{Tasks Completed}
+\label{chap:tasks}
+\noindent \rule{6.6in}{0.01in}
+\newpage
+
+The following concrete tasks were completed over the course of this project, roughly in the order they were carried out.
+
+\begin{enumerate}
+\item \textbf{Data acquisition and exploratory analysis.} The anonymised 8{,}173-record Bengaluru traffic-event export was loaded and explored: a per-column missingness audit, distribution plots for the key categorical fields (event type, cause, status, priority, corridor, police station), and a temporal breakdown of incident counts by hour of day and day of week.
+\item \textbf{Target-variable construction.} A four-class severity target was built from the \texttt{priority} and \texttt{requires\_road\_closure} fields (Section~\ref{sec:target-construction}), and its resulting class distribution was analysed and visualised, confirming the significant class imbalance later central to the evaluation in Chapter~\ref{chap:results}.
+\item \textbf{Data cleaning.} Columns with extreme missingness were identified and dropped, datetime fields were parsed, and remaining numeric nulls were median-imputed.
+\item \textbf{Feature engineering.} Thirty predictive features were engineered across spatial, temporal, event-identity, operational, and duration/resolution groups, including rush-hour flags and a coarse time-of-day bucket.
+\item \textbf{Geographic clustering.} K-Means clustering was applied to event coordinates to generate the \texttt{location\_cluster} feature described in Section~\ref{sec:kmeans}.
+\item \textbf{Categorical encoding and scaling.} Nine categorical columns were label-encoded, and a \texttt{StandardScaler} was fitted for the neural-network-based models; both were serialized for reuse at inference time.
+\item \textbf{Stratified train/test split.} An 80/20 stratified split (6{,}538 / 1{,}635 events) was performed to preserve class proportions in both partitions.
+\item \textbf{Base model training.} LightGBM, XGBoost, an MLP, and TabNet were each trained and evaluated independently on the held-out test set, with a full classification report generated for each.
+\item \textbf{Stacked ensemble construction.} A five-fold out-of-fold stacking procedure was implemented and used to train a LightGBM meta-learner on the concatenated base-model probabilities.
+\item \textbf{Comparative evaluation.} All five models (the four base models plus the stacked ensemble) were compared on accuracy, macro-F1, and weighted-F1, and per-class precision/recall/F1 was examined in detail, with particular attention to the Critical class.
+\item \textbf{Feature-importance analysis.} LightGBM's split-based feature importances were computed and visualised to identify which engineered features most influenced the model's decisions.
+\item \textbf{Rule-based recommendation engine.} The severity-to-action mapping described in Section~\ref{sec:recommendation-engine}, including its corridor and peak-hour multipliers and cause-specific special actions, was implemented and demonstrated on four representative event scenarios (Section~\ref{sec:recommendation-demo}).
+\item \textbf{End-to-end inference function.} A single \texttt{predict\_congestion()} function integrating feature construction, encoding, base-model prediction, meta-learner combination, and the recommendation engine was implemented (Section~\ref{sec:inference-pipeline}).
+\item \textbf{Artifact packaging.} All trained models, the fitted encoders, the scaler, the K-Means model, and the feature-name list were serialized and bundled for downstream reuse.
+\item \textbf{Full-stack application.} A Python FastAPI inference sidecar, a Go/Gin API gateway, and a Next.js frontend (with an interactive Leaflet map, a prediction form, a results view, and a prediction history page) were built around the trained pipeline, containerised with Docker Compose, and deployed (frontend on Vercel; the Go and Python services on Railway).
+\item \textbf{Report and presentation preparation.} This written thesis report and an accompanying slide presentation summarising the system, methodology, and results were prepared.
+\end{enumerate}

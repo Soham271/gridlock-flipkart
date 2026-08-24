@@ -3,10 +3,12 @@ import { useEffect, useState } from "react"
 import { motion, useReducedMotion } from "framer-motion"
 import { HistoryEntry } from "@/types"
 import { getHistory, clearHistory } from "@/lib/history"
+import { downloadReport } from "@/lib/report"
 import SeverityBadge from "@/components/shared/SeverityBadge"
 import Link from "next/link"
 import {
   IconTrash,
+  IconFileDownload,
   IconHistory,
   IconScanEye,
 } from "@tabler/icons-react"
@@ -68,7 +70,7 @@ export default function HistoryPage() {
           <table className="w-full min-w-[760px] relative border-collapse">
             <thead className="sticky top-0 bg-[var(--bg-elevated-1)] z-10 shadow-sm border-b border-[var(--border-subtle)]">
               <tr>
-                {["Time", "Event Cause", "Type", "Location", "Corridor", "Severity", "Confidence", "Officers"].map(h => (
+                {["Time", "Event Cause", "Type", "Location", "Corridor", "Severity", "Confidence", "Officers", "Report"].map(h => (
                   <th key={h} className="px-4 py-3 text-left text-[10px] uppercase tracking-[0.08em] text-[var(--text-tertiary)] font-medium bg-[var(--bg-elevated-1)]">{h}</th>
                 ))}
               </tr>
@@ -89,6 +91,16 @@ export default function HistoryPage() {
                   <td className="px-4 py-3 whitespace-nowrap"><SeverityBadge label={e.severity_label} size="sm" /></td>
                   <td className="px-4 py-3 font-data text-xs text-[var(--text-secondary)] tabular-nums whitespace-nowrap">{(e.confidence * 100).toFixed(1)}%</td>
                   <td className="px-4 py-3 font-data text-xs text-[var(--text-secondary)] tabular-nums whitespace-nowrap">{e.recommendations.manpower_min}–{e.recommendations.manpower_max}</td>
+                  <td className="px-4 py-3 whitespace-nowrap">
+                    <button
+                      onClick={() => downloadReport(e)}
+                      aria-label={`Download report for ${e.input.event_cause.replace(/_/g, " ")} on ${new Date(e.timestamp).toLocaleDateString()}`}
+                      title="Download report as PDF"
+                      className="btn-ghost !p-1.5 rounded text-[var(--text-tertiary)] hover:text-[var(--accent-signal)] hover:bg-[var(--bg-elevated-2)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-signal)]"
+                    >
+                      <IconFileDownload size={14} stroke={1.5} />
+                    </button>
+                  </td>
                 </tr>
               ))}
             </tbody>

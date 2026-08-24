@@ -1,0 +1,258 @@
+\documentclass[12pt,phd,times]{pkmthesis}
+
+\usepackage{amsmath,epsfig,graphicx,setspace,url,float}
+\usepackage{pstricks,colortab,pifont}
+\usepackage{lscape,multicol,multirow,longtable,subfigure}
+\usepackage{cite, bm}   
+\usepackage{geometry}
+\usepackage{array}
+\usepackage{algorithm}
+\usepackage{multirow}
+\usepackage{tabularx}
+\usepackage{graphicx}
+\usepackage[small,bf]{caption}              % Added on 26/08/08 (moved before subcaption to avoid option-clash with modern caption pkg)
+\usepackage{subcaption}
+\usepackage{booktabs}% Due to this hyberref will not work for references (PKM on 07/07/08)
+\usepackage[english]{babel}
+%\usepackage{slashbox} 
+\usepackage{csquotes}  
+\usepackage{threeparttable}
+%\usepackage{adjustbox}                    % Added on 24/10/08 (Senthil)
+\setlength{\textfloatsep}{1cm}              % Spacing b/w  float and text (PKM 01/11/08)
+%..........................................................................................................................................
+\normalem                                   % Added on 01/07/08 to avoid underline in the references
+\setlength{\abovecaptionskip}{8pt}          % Added on 08/07/08
+\setlength{\belowcaptionskip}{8pt}          % Added on 08/07/08
+%..........................................................................................................................................
+\usepackage{hyperref}
+\usepackage{extra_functions}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,fit,shapes.geometric}
+%\input{pagesetup_pkm_twoside.tex}           % Modified on 06/07/08, 10/07/08, 15/07/08
+%\input{pagesetup_pkm_singleside.tex}       % For Single Sided Document 
+\input{pagesetup_pkm_middleside.tex}       % Middle alignment 
+\raggedbottom                               % o6/08/08  (Remove Unnecessary space b/w paragraphs)
+%******************************************************************************************************************************************
+
+\begin {document}
+\setcounter{page}{1} \pagenumbering{roman}  % 03/07/08
+\doublespacing                              % or use \baselineskip 12pt (12, 18 and 24)
+%*************************************************** FRONT PAGES**********************************************
+%\thispagestyle{empty}
+%\pdfbookmark{Title}{Title}
+%\include{FrontPages/title_page}
+%\thispagestyle{empty}
+%\clearpage
+
+\thispagestyle{empty}
+\pdfbookmark{Title}{Title}
+\include{FrontPages/title_page}
+\thispagestyle{empty}
+
+\clearpage
+\thispagestyle{empty}
+\pdfbookmark{Dedication}{Dedication}
+%\include{FrontPages/Dedication}
+\newpage
+\thispagestyle{empty}
+\clearpage
+\thispagestyle{empty}
+\pdfbookmark{Certificate}{Certificate}
+\include{FrontPages/Certificate}
+\newpage
+\thispagestyle{empty}
+\clearpage
+
+\thispagestyle{empty}
+\pdfbookmark{Acknowledgement}{Acknowledgement}
+\include{FrontPages/Acknowledgement}
+\thispagestyle{empty}
+\clearpage
+
+\thispagestyle{empty}
+\pdfbookmark{Abstract}{Abstract}
+%\renewcommand{\baselinestretch}{1.1}
+%\include{FrontPages/Abstract2}
+{\renewcommand{\baselinestretch}{1.5}
+{%\small\normalsize
+\begin{center}
+	{\bf{Abstract}}
+\end{center}
+{\em{\noindent
+Traffic control rooms in large Indian cities routinely have to judge, within minutes, how serious a reported road event is and how many personnel to send to it. Today that judgement is made by whichever officer happens to answer the call, using experience rather than any recorded rule, which makes the response inconsistent from one shift or zone to another and leaves no auditable link between what was reported and what was deployed. This project builds a two-stage decision-support pipeline that replaces the first half of that judgement with a trained classifier and the second half with an explicit, inspectable rule set, using an anonymised log of 8{,}173 real traffic events recorded across Bengaluru.
+
+\vspace{0.3cm}
+Because the raw log never labels an event's severity directly, a four-level target (Low, Medium, High, Critical) is derived from two fields the control room already records for other purposes -- the assigned priority and whether a road closure was ordered -- and both source fields are then withheld from the model so it cannot simply read the answer off them. Thirty features are engineered from the remaining data: rush-hour and weekend flags, a twenty-cluster K-Means grouping of event coordinates that turns raw latitude/longitude pairs into a reusable notion of ``neighbourhood'', and cleaned categorical fields describing the corridor, police jurisdiction, and cause of each event. Four classifiers with different inductive biases -- LightGBM, XGBoost, a multi-layer perceptron, and the attention-based TabNet -- are trained independently on this feature set and then combined through a five-fold out-of-fold stacked ensemble with a LightGBM meta-learner, so that the final prediction can draw on whichever base model happens to be more reliable for a given kind of event.
+
+\vspace{0.3cm}
+On a held-out test split of 1{,}635 events, every model reaches 89--93\% raw accuracy, but that number turns out to be a poor guide to how usable each model actually is: the neural models push almost all of their errors onto the rare Critical class, with the plain MLP catching only 3\% of true Critical events despite its high accuracy, while the two class-weighted tree ensembles catch roughly a third of them. This gap only becomes visible once accuracy is set aside in favour of macro-averaged F1 and per-class recall, and it is the central empirical finding of the work: a severity model that scores well on aggregate accuracy can still be unsafe to deploy if nobody checks how it treats the minority classes that matter operationally most. The predicted severity is then handed to a deterministic recommendation engine that maps it to a manpower range, a barricading strategy, and a diversion policy, adjusted by corridor and peak-hour multipliers and by cause-specific rules for public events and accidents. The full pipeline is also wrapped into a working inference function and exposed through a small full-stack application (a Next.js frontend, a Go API gateway, and a Python inference sidecar) so that the model can be queried the way an operator actually would -- by supplying an event's location and context and receiving a severity label together with a concrete resource recommendation.
+
+	}}}}
+\thispagestyle{empty}
+\clearpage
+
+%..........................................................................................................................................
+% For the fancy chapters (Don't remove these lines- 03/07/08)
+\clearpage
+\thispagestyle{empty}
+\dominitoc
+\dominilof
+\dominilot
+\fancyhf{} \fancyhead[LE]{\bfseries\small{\leftmark}}
+\fancyhead[RO]{\bfseries\small{\rightmark}}
+\fancyfoot[CE,CO]{\bfseries\thepage}
+%..........................................................................................................................................
+%TABLE OF CONTENTS
+\renewcommand{\baselinestretch}{1}
+\pdfbookmark[0]{Index}{index}
+\pdfbookmark[1]{Contents}{toc}
+\fancyhead[LE]{\bfseries\small{Contents}}
+\fancyhead[RO]{\bfseries\small{Contents}}
+\tableofcontents
+\clearpage
+%.........................................................................................................................................
+ %LIST OF FIGURES
+\pdfbookmark[1]{List of Figures}{lof}
+\addstarredchapter{List of Figures}       % PKM 05/07/08 (For more options  refer minitoc.pdf on page 36)
+\fancyhead[LE]{\bfseries\small{List of Figures}}
+\fancyhead[RO]{\bfseries\small{List of Figures}}
+\listoffigures
+\clearpage
+%..........................................................................................................................................
+% LIST OF TABLES
+\pdfbookmark[1]{List of Tables}{lot}
+\addstarredchapter{List of Tables}         % or use \mtcaddchapter[List of Tables] [Please Refer minitoc.pdf]
+\fancyhead[LE]{\bfseries\small{List of Tables}}
+\fancyhead[RO]{\bfseries\small{List of Tables}}
+\listoftables
+\clearpage
+%..........................................................................................................................................
+% LIST OF ACRONYMS
+\fancyhead[LE]{\bfseries\small{List of Acronyms}}
+\fancyhead[RO]{\bfseries\small{List of Acronyms}}
+%\pdfbookmark[1]{List of Acronyms}{loa}
+%\addstarredchapter{List of Acronyms}
+%\include{FrontPages/Acronyms}
+\clearpage
+%..........................................................................................................................................
+% LIST OF SYMBOLS
+\fancyhead[LE]{\bfseries\small{List of Symbols}}
+\fancyhead[RO]{\bfseries\small{List of Symbols}}
+%\pdfbookmark[1]{List of Symbols}{los}
+%\addstarredchapter{List of Symbols}
+%\include{FrontPages/Symbols}
+\clearpage
+%..........................................................................................................................................
+\fancyhf{}
+\fancyhead[LE]{\bfseries\small{\leftmark}}
+\fancyhead[RO]{\bfseries\small{\rightmark}}
+\fancyfoot[CE,CO]{\bfseries\thepage}
+\setcounter{page}{1} \pagenumbering{arabic}
+\renewcommand{\labelenumi}{(\roman{enumi})}   % Added on 09/08/2008
+%*******************************************************************************************************************************************************************************************
+
+
+%************************************************ BEGIN CHAPTERS **********************************************
+
+\include{chapters/1/introduction}
+\clearpage
+\thispagestyle{empty}
+\newpage
+
+\include{chapters/2/motivation}
+\clearpage
+\thispagestyle{empty}
+\newpage
+
+\include{chapters/3/literature_survey}
+\clearpage
+\thispagestyle{empty}
+\newpage
+
+\include{chapters/4/objectives_deliverables}
+\clearpage
+\thispagestyle{empty}
+\newpage
+
+\include{chapters/5/architecture_methodology}
+\clearpage
+\thispagestyle{empty}
+\newpage
+
+\include{chapters/6/tasks_completed}
+\clearpage
+\thispagestyle{empty}
+\newpage
+
+\include{chapters/7/results_discussion}
+\clearpage
+\thispagestyle{empty}
+\newpage
+
+\addtocounter{page}{-1}
+\appendix
+%%%..........................................................................................................................................
+%\fancychapter{Appendix}\label{Sunil_Appendix}
+%\chapter{Appendix}\label{Sunil_Appendix}
+%  \include{Chapters/Appendix/Appendix}
+%\clearpage
+%%..........................................................................................................................................
+%\fancychapter{Cepstral Analysis}
+%\label{app:lpc}
+%\include{chapters/Appendix/CFA}
+%\clearpage
+%%..........................................................................................................................................
+%\fancychapter{Linear Prediction Coefficients Computation}
+%\label{app:sine}
+%\include{chapters/Appendix/Appendix_lpc_V2}
+%\clearpage
+%%..........................................................................................................................................
+%\fancychapter{Composite Objective Quality Measures}
+%\label{app:cqm}
+%\include{Chapters/Appendix/Appendix_cqm_V1}
+%\clearpage
+%%..........................................................................................................................................
+%\fancychapter{MFCC Feature Extraction}
+%\label{app:mfcc}
+%\include{Chapters/Appendix/Appendix_mfcc_V1}
+%\clearpage
+%%..........................................................................................................................................
+%\fancychapter{Gaussian Mixture Models}
+%\label{app:gmm}
+%\include{Chapters/Appendix/Appendix_gmm_V1}
+%\clearpage
+%..........................................................................................................................................
+%\doublespacing
+%\normalsize
+%\pdfbookmark{Publications}{Publications}
+%\fancyhead[LE]{\bfseries\small{List of Publications}}
+%\fancyhead[RO]{\bfseries\small{List of Publications}}
+%\pdfbookmark[1]{List of Publications}{los}
+%\addstarredchapter{List of Publications}
+%\include{FrontPages/publ}
+%\clearpage
+
+%% LIST OF SYMBOLS
+%\fancyhead[LE]{\bfseries\small{List of Symbols}}
+%\fancyhead[RO]{\bfseries\small{List of Symbols}}
+%\pdfbookmark[1]{List of Symbols}{los}
+%\addstarredchapter{List of Symbols}
+%\include{FrontPages/Symbols}
+%\clearpage
+%******************************************************************************************************************************************************************
+
+%**************************************************BIBLIOGRAPHY********************************************************
+\fancyhead[LE]{\bfseries\small{Bibliography}}
+\fancyhead[RO]{\bfseries\small{Bibliography}}
+\pdfbookmark[1]{Bibliography}{los}
+\addstarredchapter{Bibliography}   % PKM 05/07/08 (For more options refer minitoc.pdf on page 36)
+\baselineskip 14pt   %12, 18 and 24
+\small
+\bibliographystyle{IEEEtran}
+\bibliography{chapters/references/MyBibliography_database_Maninder}
+%\clearpage
+%**************************************************PUBLICATIONS****************************************************************************************************************
+
+
+
+\end{document}

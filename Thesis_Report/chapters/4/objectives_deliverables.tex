@@ -1,0 +1,33 @@
+\chapter{Thesis Objectives and Deliverables}
+\label{chap:objectives}
+\noindent \rule{6.6in}{0.01in}
+\newpage
+
+\section{Objectives}
+
+Given the motivation set out in Chapter~\ref{chap:motivation}, the work in this thesis was organised around the following concrete objectives.
+
+\begin{enumerate}
+\item Clean and pre-process a real, anonymised log of Bengaluru traffic events, handling the substantial amount of missing data present in the raw export, and construct a well-defined multi-class severity target where the raw data provides none.
+\item Engineer a feature set -- spatial, temporal, and contextual -- that is predictive of severity, including an unsupervised K-Means clustering of event coordinates that converts raw latitude/longitude pairs into a usable notion of geographic region.
+\item Train and independently evaluate four classifiers with different structural biases (LightGBM, XGBoost, a multi-layer perceptron, and TabNet) on the four-class severity task, so that their individual strengths and weaknesses are visible before any combination is attempted.
+\item Combine the four base models through an out-of-fold stacked ensemble with a LightGBM meta-learner, and compare the resulting ensemble's performance -- honestly, including where it does \emph{not} improve on the base models -- against each base model individually.
+\item Evaluate every model with metrics appropriate to an imbalanced, safety-relevant classification task, specifically macro-averaged F1-score and per-class precision/recall in addition to overall accuracy, rather than defaulting to accuracy as the only reported number.
+\item Design and demonstrate a deterministic, rule-based recommendation engine that converts a predicted severity, together with event cause, corridor status, and time of day, into a concrete manpower, barricading, and diversion recommendation.
+\item Wrap the trained pipeline in a single inference function and connect it to a working full-stack application, so that the system can be exercised the way a real operator would use it rather than only from inside a notebook.
+\item Critically examine the class-imbalance effects observed in the results and identify concrete, specific directions for improving detection of the rarer, more severe classes in future work.
+\end{enumerate}
+
+\section{Deliverables}
+
+In line with the objectives above, this thesis produces the following concrete deliverables.
+
+\begin{itemize}
+\item A documented, reproducible data-cleaning and feature-engineering pipeline (missing-value handling, categorical encoding, K-Means location clustering) implemented in Python.
+\item Four independently trained and serialized base classification models -- LightGBM, XGBoost, an MLP, and TabNet -- together with the fitted label encoders, feature scaler, and K-Means model needed to reproduce their inputs at inference time.
+\item A trained stacked meta-learner that combines the four base models' class-probability outputs into a single final severity prediction.
+\item A comparative evaluation covering all five models (four base models plus the stacked ensemble) across accuracy, macro-F1, weighted-F1, and per-class precision/recall/F1, presented in Chapter~\ref{chap:results}.
+\item A rule-based resource-recommendation engine, exposed through a working \texttt{predict\_congestion()} inference function that accepts raw event attributes and returns both a predicted severity and the corresponding resource recommendation.
+\item A small full-stack application -- a Next.js frontend, a Go/Gin API layer, and a Python (FastAPI) inference sidecar, containerised with Docker Compose -- that exposes the trained pipeline as a usable prediction service rather than leaving it inside a notebook.
+\item This written thesis report, together with an accompanying slide presentation summarising the system, methodology, and results.
+\end{itemize}

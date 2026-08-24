@@ -1,0 +1,270 @@
+<mxfile host="app.diagrams.net" agent="ASTRAM Gridlock" version="24.0.0">
+  <diagram name="1. ML Pipeline" id="pipeline">
+    <mxGraphModel dx="1100" dy="800" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1100" pageHeight="850" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <mxCell id="title" value="&lt;b&gt;ASTRAM Gridlock — Machine Learning Pipeline&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size: 11px;&quot;&gt;Event-driven traffic congestion severity prediction · 8,173 Bengaluru events&lt;/font&gt;" style="text;html=1;align=left;verticalAlign=middle;fontSize=16;" vertex="1" parent="1">
+          <mxGeometry x="40" y="20" width="700" height="50" as="geometry" />
+        </mxCell>
+
+        <mxCell id="lbl_prep" value="DATA PREPARATION" style="text;html=1;align=left;fontSize=10;fontColor=#666666;letterSpacing=1;" vertex="1" parent="1">
+          <mxGeometry x="40" y="80" width="200" height="20" as="geometry" />
+        </mxCell>
+
+        <mxCell id="raw" value="&lt;b&gt;Raw event log&lt;/b&gt;&lt;br&gt;8,173 × 46 columns" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="40" y="105" width="170" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="clean" value="&lt;b&gt;Cleaning&lt;/b&gt;&lt;br&gt;drop &amp;gt;96% missing&lt;br&gt;median-impute rest" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="240" y="105" width="170" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="feat" value="&lt;b&gt;Feature engineering&lt;/b&gt;&lt;br&gt;30 features&lt;br&gt;spatial · temporal · context" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="440" y="105" width="170" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="kmeans" value="&lt;b&gt;K-Means (K=20)&lt;/b&gt;&lt;br&gt;&lt;i&gt;unsupervised&lt;/i&gt;&lt;br&gt;lat/lon → location_cluster" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d0cee2;strokeColor=#56517e;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="640" y="105" width="170" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="enc" value="&lt;b&gt;Encode &amp;amp; scale&lt;/b&gt;&lt;br&gt;9 label encoders&lt;br&gt;StandardScaler" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="840" y="105" width="170" height="55" as="geometry" />
+        </mxCell>
+
+        <mxCell id="e1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;" edge="1" parent="1" source="raw" target="clean"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;" edge="1" parent="1" source="clean" target="feat"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;" edge="1" parent="1" source="feat" target="kmeans"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;" edge="1" parent="1" source="kmeans" target="enc"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+        <mxCell id="target" value="&lt;b&gt;Target constructed, not given&lt;/b&gt;&lt;br&gt;priority × requires_road_closure → severity 0–3&lt;br&gt;&lt;i&gt;both source fields then removed from features&lt;/i&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=11;dashed=1;" vertex="1" parent="1">
+          <mxGeometry x="40" y="185" width="330" height="60" as="geometry" />
+        </mxCell>
+
+        <mxCell id="split" value="&lt;b&gt;Stratified 80/20 split&lt;/b&gt;&amp;nbsp;&amp;nbsp;·&amp;nbsp;&amp;nbsp;6,538 train&amp;nbsp;&amp;nbsp;/&amp;nbsp;&amp;nbsp;1,635 test&amp;nbsp;&amp;nbsp;·&amp;nbsp;&amp;nbsp;class proportions preserved" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="440" y="195" width="570" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="e5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="enc" target="split"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+        <mxCell id="lbl_base" value="STAGE 1 — LEARNED · four base classifiers, different structural biases" style="text;html=1;align=left;fontSize=10;fontColor=#666666;letterSpacing=1;" vertex="1" parent="1">
+          <mxGeometry x="40" y="265" width="500" height="20" as="geometry" />
+        </mxCell>
+
+        <mxCell id="lgbm" value="&lt;b&gt;LightGBM&lt;/b&gt;&lt;br&gt;boosted trees, leaf-wise&lt;br&gt;1000 est · lr 0.03 · 63 leaves&lt;br&gt;&lt;i&gt;class-weighted&lt;/i&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="60" y="295" width="200" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="xgb" value="&lt;b&gt;XGBoost&lt;/b&gt;&lt;br&gt;boosted trees, depth-wise&lt;br&gt;1000 est · lr 0.03 · depth 6&lt;br&gt;&lt;i&gt;class-weighted&lt;/i&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="300" y="295" width="200" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="mlp" value="&lt;b&gt;MLP&lt;/b&gt;&lt;br&gt;neural net 256-128-64-32&lt;br&gt;ReLU · Adam · early stop&lt;br&gt;&lt;i&gt;no class weighting&lt;/i&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="540" y="295" width="200" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="tabnet" value="&lt;b&gt;TabNet&lt;/b&gt;&lt;br&gt;attention for tabular data&lt;br&gt;width 32 · 5 decision steps&lt;br&gt;&lt;i&gt;no class weighting&lt;/i&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="780" y="295" width="200" height="70" as="geometry" />
+        </mxCell>
+
+        <mxCell id="e6" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;exitX=0.5;exitY=1;" edge="1" parent="1" source="split" target="lgbm"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e7" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;exitX=0.5;exitY=1;" edge="1" parent="1" source="split" target="xgb"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e8" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;exitX=0.5;exitY=1;" edge="1" parent="1" source="split" target="mlp"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e9" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;exitX=0.5;exitY=1;" edge="1" parent="1" source="split" target="tabnet"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+        <mxCell id="probs" value="&lt;b&gt;16 meta-features&lt;/b&gt;&amp;nbsp;&amp;nbsp;=&amp;nbsp;&amp;nbsp;4 models × 4 class probabilities&amp;nbsp;&amp;nbsp;(generated out-of-fold — see page 2)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="240" y="400" width="600" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="e10" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="lgbm" target="probs"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e11" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="xgb" target="probs"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e12" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="mlp" target="probs"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e13" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="tabnet" target="probs"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+        <mxCell id="meta" value="&lt;b&gt;Stacked meta-learner (LightGBM)&lt;/b&gt;&lt;br&gt;learns how much to trust each base model" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="390" y="475" width="300" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="e14" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;" edge="1" parent="1" source="probs" target="meta"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+        <mxCell id="sev" value="&lt;b&gt;Severity prediction&lt;/b&gt;&lt;br&gt;0 Low · 1 Medium · 2 High · 3 Critical&lt;br&gt;+ confidence &amp;amp; class probabilities" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="400" y="570" width="280" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="e15" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;" edge="1" parent="1" source="meta" target="sev"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+        <mxCell id="lbl_rule" value="STAGE 2 — DETERMINISTIC · no machine learning here" style="text;html=1;align=left;fontSize=10;fontColor=#666666;letterSpacing=1;" vertex="1" parent="1">
+          <mxGeometry x="40" y="655" width="420" height="20" as="geometry" />
+        </mxCell>
+
+        <mxCell id="rule" value="&lt;b&gt;Rule-based recommendation engine&lt;/b&gt;&lt;br&gt;fixed severity→action table&amp;nbsp;&amp;nbsp;·&amp;nbsp;&amp;nbsp;×1.4 if corridor&amp;nbsp;&amp;nbsp;·&amp;nbsp;&amp;nbsp;×1.25 if rush hour" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="300" y="685" width="480" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="e16" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;" edge="1" parent="1" source="sev" target="rule"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+        <mxCell id="o1" value="Manpower&lt;br&gt;min–max officers" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="60" y="780" width="200" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="o2" value="Barricading&lt;br&gt;plan" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="300" y="780" width="200" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="o3" value="Diversion&lt;br&gt;policy" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="540" y="780" width="200" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="o4" value="Delay&lt;br&gt;estimate" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="780" y="780" width="200" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="e17" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;exitX=0.5;exitY=1;" edge="1" parent="1" source="rule" target="o1"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e18" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;exitX=0.5;exitY=1;" edge="1" parent="1" source="rule" target="o2"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e19" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;exitX=0.5;exitY=1;" edge="1" parent="1" source="rule" target="o3"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e20" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;exitX=0.5;exitY=1;" edge="1" parent="1" source="rule" target="o4"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+
+  <diagram name="2. Out-of-Fold Stacking" id="stacking">
+    <mxGraphModel dx="1100" dy="800" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1100" pageHeight="850" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <mxCell id="s_title" value="&lt;b&gt;How the meta-learner is trained without leakage&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size: 11px;&quot;&gt;5-fold stratified cross-validation over the 6,538 training events&lt;/font&gt;" style="text;html=1;align=left;verticalAlign=middle;fontSize=16;" vertex="1" parent="1">
+          <mxGeometry x="40" y="20" width="700" height="50" as="geometry" />
+        </mxCell>
+
+        <mxCell id="s_why" value="&lt;b&gt;The problem:&lt;/b&gt; a model that has already seen an event predicts it far too confidently. Training the meta-learner on those inflated probabilities teaches it to trust an accuracy that will not exist on new events.&lt;br&gt;&lt;b&gt;The fix:&lt;/b&gt; every probability below comes from a model copy that never saw that event during training." style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;align=left;fontSize=11;spacing=8;" vertex="1" parent="1">
+          <mxGeometry x="40" y="75" width="700" height="70" as="geometry" />
+        </mxCell>
+
+        <mxCell id="f1l" value="Fold 1" style="text;html=1;align=right;fontSize=11;fontStyle=1" vertex="1" parent="1"><mxGeometry x="40" y="185" width="70" height="36" as="geometry" /></mxCell>
+        <mxCell id="f2l" value="Fold 2" style="text;html=1;align=right;fontSize=11;fontStyle=1" vertex="1" parent="1"><mxGeometry x="40" y="231" width="70" height="36" as="geometry" /></mxCell>
+        <mxCell id="f3l" value="Fold 3" style="text;html=1;align=right;fontSize=11;fontStyle=1" vertex="1" parent="1"><mxGeometry x="40" y="277" width="70" height="36" as="geometry" /></mxCell>
+        <mxCell id="f4l" value="Fold 4" style="text;html=1;align=right;fontSize=11;fontStyle=1" vertex="1" parent="1"><mxGeometry x="40" y="323" width="70" height="36" as="geometry" /></mxCell>
+        <mxCell id="f5l" value="Fold 5" style="text;html=1;align=right;fontSize=11;fontStyle=1" vertex="1" parent="1"><mxGeometry x="40" y="369" width="70" height="36" as="geometry" /></mxCell>
+
+        <mxCell id="c11" value="predict" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=10;" vertex="1" parent="1"><mxGeometry x="125" y="185" width="110" height="36" as="geometry" /></mxCell>
+        <mxCell id="c12" value="train" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10;" vertex="1" parent="1"><mxGeometry x="241" y="185" width="110" height="36" as="geometry" /></mxCell>
+        <mxCell id="c13" value="train" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10;" vertex="1" parent="1"><mxGeometry x="357" y="185" width="110" height="36" as="geometry" /></mxCell>
+        <mxCell id="c14" value="train" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10;" vertex="1" parent="1"><mxGeometry x="473" y="185" width="110" height="36" as="geometry" /></mxCell>
+        <mxCell id="c15" value="train" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10;" vertex="1" parent="1"><mxGeometry x="589" y="185" width="110" height="36" as="geometry" /></mxCell>
+
+        <mxCell id="c21" value="train" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10;" vertex="1" parent="1"><mxGeometry x="125" y="231" width="110" height="36" as="geometry" /></mxCell>
+        <mxCell id="c22" value="predict" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=10;" vertex="1" parent="1"><mxGeometry x="241" y="231" width="110" height="36" as="geometry" /></mxCell>
+        <mxCell id="c23" value="train" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10;" vertex="1" parent="1"><mxGeometry x="357" y="231" width="110" height="36" as="geometry" /></mxCell>
+        <mxCell id="c24" value="train" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10;" vertex="1" parent="1"><mxGeometry x="473" y="231" width="110" height="36" as="geometry" /></mxCell>
+        <mxCell id="c25" value="train" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10;" vertex="1" parent="1"><mxGeometry x="589" y="231" width="110" height="36" as="geometry" /></mxCell>
+
+        <mxCell id="c31" value="train" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10;" vertex="1" parent="1"><mxGeometry x="125" y="277" width="110" height="36" as="geometry" /></mxCell>
+        <mxCell id="c32" value="train" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10;" vertex="1" parent="1"><mxGeometry x="241" y="277" width="110" height="36" as="geometry" /></mxCell>
+        <mxCell id="c33" value="predict" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=10;" vertex="1" parent="1"><mxGeometry x="357" y="277" width="110" height="36" as="geometry" /></mxCell>
+        <mxCell id="c34" value="train" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10;" vertex="1" parent="1"><mxGeometry x="473" y="277" width="110" height="36" as="geometry" /></mxCell>
+        <mxCell id="c35" value="train" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10;" vertex="1" parent="1"><mxGeometry x="589" y="277" width="110" height="36" as="geometry" /></mxCell>
+
+        <mxCell id="c41" value="train" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10;" vertex="1" parent="1"><mxGeometry x="125" y="323" width="110" height="36" as="geometry" /></mxCell>
+        <mxCell id="c42" value="train" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10;" vertex="1" parent="1"><mxGeometry x="241" y="323" width="110" height="36" as="geometry" /></mxCell>
+        <mxCell id="c43" value="train" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10;" vertex="1" parent="1"><mxGeometry x="357" y="323" width="110" height="36" as="geometry" /></mxCell>
+        <mxCell id="c44" value="predict" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=10;" vertex="1" parent="1"><mxGeometry x="473" y="323" width="110" height="36" as="geometry" /></mxCell>
+        <mxCell id="c45" value="train" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10;" vertex="1" parent="1"><mxGeometry x="589" y="323" width="110" height="36" as="geometry" /></mxCell>
+
+        <mxCell id="c51" value="train" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10;" vertex="1" parent="1"><mxGeometry x="125" y="369" width="110" height="36" as="geometry" /></mxCell>
+        <mxCell id="c52" value="train" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10;" vertex="1" parent="1"><mxGeometry x="241" y="369" width="110" height="36" as="geometry" /></mxCell>
+        <mxCell id="c53" value="train" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10;" vertex="1" parent="1"><mxGeometry x="357" y="369" width="110" height="36" as="geometry" /></mxCell>
+        <mxCell id="c54" value="train" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10;" vertex="1" parent="1"><mxGeometry x="473" y="369" width="110" height="36" as="geometry" /></mxCell>
+        <mxCell id="c55" value="predict" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=10;" vertex="1" parent="1"><mxGeometry x="589" y="369" width="110" height="36" as="geometry" /></mxCell>
+
+        <mxCell id="s_note" value="In each fold, fresh copies of &lt;b&gt;all four&lt;/b&gt; base models train on the blue parts and predict the orange part." style="text;html=1;align=left;fontSize=11;fontColor=#333333;" vertex="1" parent="1">
+          <mxGeometry x="125" y="415" width="600" height="20" as="geometry" />
+        </mxCell>
+
+        <mxCell id="oof" value="&lt;b&gt;Out-of-fold probability matrix&lt;/b&gt;&lt;br&gt;&lt;br&gt;6,538 rows × 16 columns&lt;br&gt;&lt;br&gt;&lt;i&gt;every row predicted by a model&lt;br&gt;that never trained on it&lt;/i&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="780" y="230" width="230" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="s_e1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="c33" target="oof"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+        <mxCell id="s_meta" value="&lt;b&gt;Meta-learner (LightGBM)&lt;/b&gt;&lt;br&gt;trained on the 16 columns → final severity" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="760" y="430" width="270" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="s_e2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;" edge="1" parent="1" source="oof" target="s_meta"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+        <mxCell id="s_result" value="&lt;b&gt;Honest result:&lt;/b&gt; stacking did &lt;b&gt;not&lt;/b&gt; beat the base models here — the ensemble scored the lowest accuracy of all five (0.8948). Two likely reasons: the in-fold model copies were lighter than the final tuned models, so their probabilities were noisier; and with only 297 Critical and 379 Medium events in total, each fold holds well under 100 of either, too few for the meta-learner to learn reliable weights for exactly the classes that matter most. It did still reach the second-best Critical recall (0.34)." style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;align=left;fontSize=11;spacing=8;" vertex="1" parent="1">
+          <mxGeometry x="40" y="530" width="990" height="80" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+
+  <diagram name="3. Why Accuracy Lies" id="metrics">
+    <mxGraphModel dx="1100" dy="800" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1100" pageHeight="850" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <mxCell id="m_title" value="&lt;b&gt;Precision vs recall on the Critical class&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size: 11px;&quot;&gt;The MLP on the held-out test set — 59 truly Critical events out of 1,635&lt;/font&gt;" style="text;html=1;align=left;verticalAlign=middle;fontSize=16;" vertex="1" parent="1">
+          <mxGeometry x="40" y="20" width="700" height="50" as="geometry" />
+        </mxCell>
+
+        <mxCell id="m_ph" value="&lt;b&gt;PREDICTED&lt;/b&gt;" style="text;html=1;align=center;fontSize=11;" vertex="1" parent="1"><mxGeometry x="240" y="95" width="440" height="20" as="geometry" /></mxCell>
+        <mxCell id="m_pc" value="Critical" style="text;html=1;align=center;fontSize=11;fontStyle=1" vertex="1" parent="1"><mxGeometry x="240" y="118" width="220" height="20" as="geometry" /></mxCell>
+        <mxCell id="m_pn" value="Not Critical" style="text;html=1;align=center;fontSize=11;fontStyle=1" vertex="1" parent="1"><mxGeometry x="460" y="118" width="220" height="20" as="geometry" /></mxCell>
+        <mxCell id="m_av" value="&lt;b&gt;ACTUAL&lt;/b&gt;" style="text;html=1;align=center;fontSize=11;horizontal=0;" vertex="1" parent="1"><mxGeometry x="55" y="145" width="20" height="200" as="geometry" /></mxCell>
+        <mxCell id="m_ac" value="Critical&lt;br&gt;(59)" style="text;html=1;align=right;fontSize=11;fontStyle=1" vertex="1" parent="1"><mxGeometry x="85" y="175" width="145" height="40" as="geometry" /></mxCell>
+        <mxCell id="m_an" value="Not Critical&lt;br&gt;(1,576)" style="text;html=1;align=right;fontSize=11;fontStyle=1" vertex="1" parent="1"><mxGeometry x="85" y="275" width="145" height="40" as="geometry" /></mxCell>
+
+        <mxCell id="tp" value="&lt;b&gt;2&lt;/b&gt;&lt;br&gt;True positives&lt;br&gt;&lt;i&gt;caught&lt;/i&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="240" y="145" width="220" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="fn" value="&lt;b&gt;57&lt;/b&gt;&lt;br&gt;False negatives&lt;br&gt;&lt;i&gt;missed — the dangerous cell&lt;/i&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="460" y="145" width="220" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="fp" value="&lt;b&gt;0&lt;/b&gt;&lt;br&gt;False positives&lt;br&gt;&lt;i&gt;false alarms&lt;/i&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="240" y="245" width="220" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="tn" value="&lt;b&gt;1,576&lt;/b&gt;&lt;br&gt;True negatives&lt;br&gt;&lt;i&gt;correctly calm&lt;/i&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="460" y="245" width="220" height="100" as="geometry" />
+        </mxCell>
+
+        <mxCell id="m_prec" value="&lt;b&gt;Precision = 2 / (2 + 0) = 1.00&lt;/b&gt;&lt;br&gt;&lt;br&gt;Of everything it &lt;i&gt;called&lt;/i&gt; Critical, how much really was?&lt;br&gt;&lt;br&gt;Perfect. And almost meaningless on its own — it stays perfect precisely &lt;i&gt;because&lt;/i&gt; the model almost never risks the call." style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;align=left;fontSize=11;spacing=8;" vertex="1" parent="1">
+          <mxGeometry x="720" y="145" width="310" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="m_rec" value="&lt;b&gt;Recall = 2 / (2 + 57) = 0.03&lt;/b&gt;&lt;br&gt;&lt;br&gt;Of everything that &lt;i&gt;truly was&lt;/i&gt; Critical, how much did it catch?&lt;br&gt;&lt;br&gt;3%. It lets 57 of 59 genuinely critical events through, labelled as something less urgent." style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;align=left;fontSize=11;spacing=8;" vertex="1" parent="1">
+          <mxGeometry x="720" y="285" width="310" height="100" as="geometry" />
+        </mxCell>
+
+        <mxCell id="m_acc" value="&lt;b&gt;Accuracy = (2 + 1,576) / 1,635 = 92.4%&lt;/b&gt;&amp;nbsp;&amp;nbsp;— and it is nearly blind to the one class the system exists to catch.&lt;br&gt;&lt;br&gt;Because 91.7% of events are Low or High, a model can score in the low 90s while ignoring both rare classes entirely. That is why this thesis reports &lt;b&gt;macro-F1&lt;/b&gt; (F1 averaged across all four classes, each counting equally) and &lt;b&gt;per-class recall&lt;/b&gt; instead of leading with accuracy." style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;align=left;fontSize=12;spacing=8;" vertex="1" parent="1">
+          <mxGeometry x="40" y="390" width="990" height="90" as="geometry" />
+        </mxCell>
+
+        <mxCell id="m_tbl_t" value="&lt;b&gt;The same reversal across all five models&lt;/b&gt;" style="text;html=1;align=left;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="40" y="505" width="500" height="20" as="geometry" />
+        </mxCell>
+
+        <mxCell id="h1" value="Model" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontStyle=1;fontSize=11;" vertex="1" parent="1"><mxGeometry x="40" y="530" width="240" height="32" as="geometry" /></mxCell>
+        <mxCell id="h2" value="Accuracy" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontStyle=1;fontSize=11;" vertex="1" parent="1"><mxGeometry x="280" y="530" width="180" height="32" as="geometry" /></mxCell>
+        <mxCell id="h3" value="Macro-F1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontStyle=1;fontSize=11;" vertex="1" parent="1"><mxGeometry x="460" y="530" width="180" height="32" as="geometry" /></mxCell>
+        <mxCell id="h4" value="Critical recall" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontStyle=1;fontSize=11;" vertex="1" parent="1"><mxGeometry x="640" y="530" width="180" height="32" as="geometry" /></mxCell>
+
+        <mxCell id="r1a" value="LightGBM" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#666666;fontSize=11;" vertex="1" parent="1"><mxGeometry x="40" y="562" width="240" height="30" as="geometry" /></mxCell>
+        <mxCell id="r1b" value="0.9223" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#666666;fontSize=11;" vertex="1" parent="1"><mxGeometry x="280" y="562" width="180" height="30" as="geometry" /></mxCell>
+        <mxCell id="r1c" value="0.6949  ★ best" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=11;fontStyle=1" vertex="1" parent="1"><mxGeometry x="460" y="562" width="180" height="30" as="geometry" /></mxCell>
+        <mxCell id="r1d" value="0.32" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#666666;fontSize=11;" vertex="1" parent="1"><mxGeometry x="640" y="562" width="180" height="30" as="geometry" /></mxCell>
+
+        <mxCell id="r2a" value="XGBoost" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#666666;fontSize=11;" vertex="1" parent="1"><mxGeometry x="40" y="592" width="240" height="30" as="geometry" /></mxCell>
+        <mxCell id="r2b" value="0.9168" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#666666;fontSize=11;" vertex="1" parent="1"><mxGeometry x="280" y="592" width="180" height="30" as="geometry" /></mxCell>
+        <mxCell id="r2c" value="0.6906" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#666666;fontSize=11;" vertex="1" parent="1"><mxGeometry x="460" y="592" width="180" height="30" as="geometry" /></mxCell>
+        <mxCell id="r2d" value="0.36  ★ best" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=11;fontStyle=1" vertex="1" parent="1"><mxGeometry x="640" y="592" width="180" height="30" as="geometry" /></mxCell>
+
+        <mxCell id="r3a" value="MLP" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#666666;fontSize=11;" vertex="1" parent="1"><mxGeometry x="40" y="622" width="240" height="30" as="geometry" /></mxCell>
+        <mxCell id="r3b" value="0.9242" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#666666;fontSize=11;" vertex="1" parent="1"><mxGeometry x="280" y="622" width="180" height="30" as="geometry" /></mxCell>
+        <mxCell id="r3c" value="0.5843" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#666666;fontSize=11;" vertex="1" parent="1"><mxGeometry x="460" y="622" width="180" height="30" as="geometry" /></mxCell>
+        <mxCell id="r3d" value="0.03  ✕ blind" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=11;fontStyle=1" vertex="1" parent="1"><mxGeometry x="640" y="622" width="180" height="30" as="geometry" /></mxCell>
+
+        <mxCell id="r4a" value="TabNet" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#666666;fontSize=11;" vertex="1" parent="1"><mxGeometry x="40" y="652" width="240" height="30" as="geometry" /></mxCell>
+        <mxCell id="r4b" value="0.9254  ★ highest" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=11;fontStyle=1" vertex="1" parent="1"><mxGeometry x="280" y="652" width="180" height="30" as="geometry" /></mxCell>
+        <mxCell id="r4c" value="0.6027" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#666666;fontSize=11;" vertex="1" parent="1"><mxGeometry x="460" y="652" width="180" height="30" as="geometry" /></mxCell>
+        <mxCell id="r4d" value="0.10" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=11;" vertex="1" parent="1"><mxGeometry x="640" y="652" width="180" height="30" as="geometry" /></mxCell>
+
+        <mxCell id="r5a" value="Stacked ensemble" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#666666;fontSize=11;" vertex="1" parent="1"><mxGeometry x="40" y="682" width="240" height="30" as="geometry" /></mxCell>
+        <mxCell id="r5b" value="0.8948" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#666666;fontSize=11;" vertex="1" parent="1"><mxGeometry x="280" y="682" width="180" height="30" as="geometry" /></mxCell>
+        <mxCell id="r5c" value="0.6639" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#666666;fontSize=11;" vertex="1" parent="1"><mxGeometry x="460" y="682" width="180" height="30" as="geometry" /></mxCell>
+        <mxCell id="r5d" value="0.34" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#666666;fontSize=11;" vertex="1" parent="1"><mxGeometry x="640" y="682" width="180" height="30" as="geometry" /></mxCell>
+
+        <mxCell id="m_punch" value="&lt;b&gt;TabNet has the highest accuracy.&lt;br&gt;LightGBM has the best macro-F1.&lt;br&gt;&lt;br&gt;Ranking by accuracy picks the wrong model.&lt;/b&gt;&lt;br&gt;&lt;br&gt;The two models with usable Critical recall are exactly the two trained with class weighting." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;align=left;fontSize=12;spacing=8;" vertex="1" parent="1">
+          <mxGeometry x="840" y="530" width="190" height="182" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

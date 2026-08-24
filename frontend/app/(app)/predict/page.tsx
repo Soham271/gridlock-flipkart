@@ -6,7 +6,7 @@ import dynamic from "next/dynamic"
 import EventForm from "@/components/prediction/EventForm"
 import DemoScenarios from "@/components/prediction/DemoScenarios"
 import AnalysisPopup from "@/components/prediction/AnalysisPopup"
-import { PredictRequest, PredictResponse, LocationSuggestion } from "@/types"
+import { PredictRequest, PredictResponse, LocationSuggestion, HistoryEntry } from "@/types"
 import { predictEvent, locateAt } from "@/lib/api"
 import { saveEntry } from "@/lib/history"
 import { IconScanEye, IconMapPin, IconChevronDown } from "@tabler/icons-react"
@@ -29,6 +29,7 @@ export default function PredictPage() {
   const [demosOpen, setDemosOpen] = useState(true)
   const [popupOpen, setPopupOpen] = useState(false)
   const [savedId, setSavedId] = useState<string | null>(null)
+  const [savedEntry, setSavedEntry] = useState<HistoryEntry | null>(null)
   const [closing, setClosing] = useState(false)
 
   const [isNavigating, setIsNavigating] = useState(false)
@@ -38,6 +39,7 @@ export default function PredictPage() {
     setError(null)
     setResult(null)
     setSavedId(null)
+    setSavedEntry(null)
     setPopupOpen(true)
     setClosing(false)
     setIsNavigating(false)
@@ -46,6 +48,7 @@ export default function PredictPage() {
       const entry = saveEntry(req, res)
       setResult(res)
       setSavedId(entry.id)
+      setSavedEntry(entry)
     } catch (e: any) {
       setError(e.message)
     } finally {
@@ -124,6 +127,7 @@ export default function PredictPage() {
         result={result}
         error={error}
         onClose={handleClose}
+        entry={savedEntry}
         onViewFull={handleViewFull}
       />
 

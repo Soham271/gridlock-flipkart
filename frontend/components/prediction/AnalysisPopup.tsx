@@ -1,9 +1,10 @@
 "use client"
 import { useEffect, useState, useRef, useCallback } from "react"
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion"
-import { IconX, IconArrowRight, IconCheck } from "@tabler/icons-react"
-import { PredictResponse } from "@/types"
+import { IconX, IconArrowRight, IconCheck, IconFileDownload } from "@tabler/icons-react"
+import { PredictResponse, HistoryEntry } from "@/types"
 import { SEVERITY_COLORS } from "@/lib/severity"
+import { downloadReport } from "@/lib/report"
 
 const MODELS = ["LightGBM", "XGBoost", "MLP", "TabNet", "Meta-learner"]
 const TICK_INTERVAL = 400 // ms between each checklist item
@@ -67,11 +68,12 @@ interface Props {
   loading: boolean
   result: PredictResponse | null
   error: string | null
+  entry?: HistoryEntry | null
   onClose: () => void
   onViewFull: () => void
 }
 
-export default function AnalysisPopup({ open, loading, result, error, onClose, onViewFull }: Props) {
+export default function AnalysisPopup({ open, loading, result, error, entry, onClose, onViewFull }: Props) {
   const reduced = useReducedMotion()
 
   // Animation phase states
@@ -342,6 +344,15 @@ export default function AnalysisPopup({ open, loading, result, error, onClose, o
                           <button onClick={onViewFull} className="btn-primary flex-1 justify-center gap-1.5 py-2">
                             View Full Analysis <IconArrowRight size={13} />
                           </button>
+                          {entry && (
+                            <button
+                              onClick={() => downloadReport(entry)}
+                              title="Download report as PDF"
+                              className="btn-secondary py-2 gap-1.5 border border-[var(--border-hover)] hover:bg-[var(--bg-elevated-2)]"
+                            >
+                              <IconFileDownload size={13} /> Report
+                            </button>
+                          )}
                           <button onClick={onClose} className="btn-secondary py-2 border border-[var(--border-strong)] hover:bg-[var(--bg-elevated-2)]">
                             Close
                           </button>

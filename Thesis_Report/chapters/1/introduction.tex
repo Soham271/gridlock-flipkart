@@ -1,0 +1,36 @@
+\chapter{Introduction}
+\label{chap:introduction}
+\noindent \rule{6.6in}{0.01in}
+\newpage
+
+\section{Background}
+
+Traffic congestion in a large Indian city such as Bengaluru comes from two rather different sources, and it is worth separating them before either can be tackled with data. The first, \emph{recurring} congestion, is the slow build-up and release of traffic that follows the rhythm of a working city -- the same junctions choke at roughly the same hours on roughly the same weekdays, and this regularity is exactly what makes it amenable to time-series and flow-forecasting techniques. The second, \emph{event-driven} congestion, has no such rhythm: it is set off by a discrete happening -- a collision, a vehicle breaking down mid-road, sudden water-logging after rain, or a planned gathering such as a rally, procession, or cricket match -- and because these events do not repeat on a schedule, a model trained purely on historical flow patterns has nothing to anchor a prediction to until the event is already under way.
+
+What an event-driven incident actually demands from the traffic police is not a forecast but a rapid triage decision. A stalled auto-rickshaw on a side street might need nothing more than a couple of marshals waving traffic around it; a multi-vehicle accident on a corridor road during the evening rush can plausibly need dozens of officers, coordinated lane closures, and a signed diversion route before the queue behind it grows unmanageable. In practice, this triage is performed by whichever control-room operator or beat officer first logs the event, working from experience and from whatever is visible or reported at that moment.
+
+\section{Problem Statement}
+
+Leaving severity triage entirely to individual judgement, while it clearly works well enough to run a city day to day, has three concrete weaknesses that this project treats as the reasons a data-driven layer is worth building:
+
+\begin{enumerate}
+\item \textbf{Inconsistency across officers and zones.} Two structurally similar events -- same cause, similar time of day, similar road type -- can be triaged very differently depending on who happens to be on duty, which makes resource allocation uneven across the city even when the underlying incidents are comparable.
+\item \textbf{Time lost to manual assessment.} The minutes spent deciding how serious an event is, and what to do about it, are minutes not spent moving personnel toward it -- and for event-driven congestion, the first few minutes after a report tend to matter the most.
+\item \textbf{No recorded link between judgement and action.} Even when an officer's severity call is reasonable, there is typically no written, auditable rule connecting that call to a specific number of officers, a barricading pattern, or a diversion route; the resulting response depends on individual improvisation rather than a documented policy.
+\end{enumerate}
+
+This thesis responds to these three weaknesses with a system that does two things: it learns, from a real history of logged events, to estimate severity on a four-point scale before a human has to; and it then applies a fixed, written-down set of rules that turns that estimate into a specific manpower, barricading, and diversion recommendation, so that the link between ``how bad is this'' and ``what do we do about it'' is explicit rather than left to memory.
+
+\section{Overview of the Proposed System}
+
+The system built for this thesis is a two-stage pipeline, sketched briefly here and described in full in Chapter~\ref{chap:architecture}. The first stage is a severity classifier: four models with different strengths -- LightGBM and XGBoost (gradient-boosted trees), a multi-layer perceptron, and TabNet (an attention-based network built for tabular data) -- are each trained on a common set of engineered features and then combined through a stacked ensemble, so that the final severity call does not depend on any single model's blind spots. One of those engineered features comes from an unsupervised step in its own right: the raw latitude/longitude of each event is passed through K-Means clustering, which groups nearby incidents into a shared geographic cluster and lets the classifiers learn that ``this part of the city tends to run more severe'' without ever memorising individual coordinates.
+
+The second stage takes whatever severity the first stage predicts and, together with contextual details already known at report time -- what caused the event, whether it sits on a designated high-traffic corridor, and what time of day it is -- runs it through a deterministic rule table that outputs a manpower range, a barricading plan, a diversion policy, and a rough delay estimate. Kept as a separate, non-learned layer, this second stage is easy to audit and to adjust by hand if a real deployment later demands different numbers, without needing to retrain anything.
+
+\section{Scope of the Thesis}
+
+The work reported here covers cleaning and feature-engineering a real, anonymised log of Bengaluru traffic events; training and independently evaluating the four base classifiers described above; combining them into a stacked ensemble and evaluating that ensemble with the same rigor, paying particular attention to how each model handles the rarer, more severe classes rather than only its overall accuracy; and designing and demonstrating the rule-based recommendation engine. The trained pipeline is also wrapped in an end-to-end inference function and connected to a small full-stack application (a Next.js frontend, a Go API layer, and a Python inference service) so that a prediction can be requested the way an operator would actually use it. What the thesis does not attempt is a live deployment inside an operational traffic-control room, integration with a real-time incident feed, or field validation of the recommendation engine's manpower numbers against decisions made by human operators -- these are left as directions for future work in Section~\ref{sec:future-scope}.
+
+\section{Organisation of the Report}
+
+The rest of this report proceeds as follows. Chapter~\ref{chap:motivation} sets out the motivation for the project in more depth, in particular why severity is treated as a safety question and not only an efficiency one. Chapter~\ref{chap:lit-survey} surveys prior work on incident-severity prediction, deep learning for traffic congestion, and ensemble/stacking methods, and positions this thesis relative to that literature. Chapter~\ref{chap:objectives} states the specific objectives pursued and the concrete deliverables produced. Chapter~\ref{chap:architecture} describes the dataset, the feature engineering, the four base models and the stacking procedure, and the rule-based recommendation engine in detail. Chapter~\ref{chap:tasks} lists the tasks completed over the course of the project. Chapter~\ref{chap:results} presents and discusses the experimental results, including where accuracy alone would have been a misleading guide, and closes with a summary of findings, limitations, and future scope. The report ends with a bibliography in IEEE format.
