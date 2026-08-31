@@ -5,62 +5,80 @@
   \centering
   \begin{tikzpicture}[
       font=\small,
-      >={Stealth[length=2.2mm]},
+      >={Stealth[length=2.0mm]},
       stg/.style={rectangle,rounded corners=2.5pt,draw=astramBlue!70,fill=boxBlue,
-                  minimum height=11mm,text width=20mm,align=center,inner sep=2pt,
+                  minimum height=9.5mm,text width=19mm,align=center,inner sep=2pt,
                   line width=0.7pt},
       uns/.style={stg,draw=astramInk!60,fill=boxPurple},
-      mdl/.style={stg,draw=astramGreen!70,fill=boxGreen,text width=27mm},
+      trn/.style={stg,draw=astramGreen!70,fill=boxGreen,text width=21mm,
+                  minimum height=8.5mm},
+      tst/.style={stg,draw=astramRed!70,fill=boxRed,text width=21mm,
+                  minimum height=8.5mm,dashed},
+      mdl/.style={stg,draw=astramGreen!70,fill=boxGreen,text width=26mm},
       nn/.style={mdl,draw=astramAmber!80,fill=boxAmber},
       bar/.style={rectangle,rounded corners=2.5pt,draw=black!35,fill=panelGrey,
-                  minimum height=10mm,text width=112mm,align=center,inner sep=2pt},
-      meta/.style={mdl,text width=44mm,minimum height=12mm},
-      fin/.style={stg,draw=astramRed!70,fill=boxRed,text width=48mm,
-                  minimum height=12mm,line width=1pt},
-      num/.style={font=\bfseries},
-      ar/.style={->,astramAmber,line width=1pt}]
+                  minimum height=8mm,text width=104mm,align=center,inner sep=2pt},
+      meta/.style={mdl,text width=34mm,minimum height=10mm},
+      evl/.style={stg,draw=astramRed!70,fill=boxRed,text width=40mm,
+                  minimum height=10mm,line width=1pt},
+      ar/.style={->,astramAmber,line width=1pt},
+      hold/.style={->,astramRed!75,line width=1pt,dashed}]
 
-    % ---------- row 1 : data preparation ----------
+    % ---------- row 1 : data preparation, applied to all 8,173 events ----------
     \node[stg] (raw) at (0,0)      {\textbf{1.} Raw log\\[-0.3mm]{\scriptsize 8{,}173 $\times$ 46}};
-    \node[stg] (cln) at (2.55,0)   {\textbf{2.} Cleaning\\[-0.3mm]{\scriptsize impute / drop}};
-    \node[stg] (fe)  at (5.10,0)   {\textbf{3.} Features\\[-0.3mm]{\scriptsize 30 engineered}};
-    \node[uns] (km)  at (7.65,0)   {\textbf{4.} K-Means\\[-0.3mm]{\scriptsize $K = 20$}};
-    \node[stg] (enc) at (10.20,0)  {\textbf{5.} Encode\\[-0.3mm]{\scriptsize + scale}};
-    \node[stg] (spl) at (12.75,0)  {\textbf{6.} Split\\[-0.3mm]{\scriptsize 6{,}538 / 1{,}635}};
+    \node[stg] (cln) at (2.35,0)   {\textbf{2.} Cleaning\\[-0.3mm]{\scriptsize impute / drop}};
+    \node[stg] (fe)  at (4.70,0)   {\textbf{3.} Features\\[-0.3mm]{\scriptsize 30 engineered}};
+    \node[uns] (km)  at (7.05,0)   {\textbf{4.} K-Means\\[-0.3mm]{\scriptsize $K = 20$}};
+    \node[stg] (enc) at (9.40,0)   {\textbf{5.} Encode\\[-0.3mm]{\scriptsize + scale}};
+    \node[stg] (spl) at (11.75,0)  {\textbf{6.} Split\\[-0.3mm]{\scriptsize stratified}};
     \foreach \a/\b in {raw/cln,cln/fe,fe/km,km/enc,enc/spl} \draw[ar] (\a) -- (\b);
 
-    % ---------- row 2 : four base learners ----------
-    \node[mdl] (lgb) at (1.7,-2.05)  {\textbf{7.} LightGBM\\[-0.3mm]{\scriptsize\itshape class-weighted}};
-    \node[mdl] (xgb) at (5.15,-2.05) {\textbf{7.} XGBoost\\[-0.3mm]{\scriptsize\itshape class-weighted}};
-    \node[nn]  (mlp) at (8.60,-2.05) {\textbf{7.} MLP\\[-0.3mm]{\scriptsize 256-128-64-32}};
-    \node[nn]  (tab) at (12.05,-2.05){\textbf{7.} TabNet\\[-0.3mm]{\scriptsize attentive}};
-    \coordinate (busA) at (12.75,-1.15);
-    \draw[astramAmber,line width=1pt] (spl.south) -- (busA);
-    \draw[astramAmber,line width=1pt] (1.7,-1.15) -- (12.75,-1.15);
+    % ---------- the 80/20 branch ----------
+    \node[trn] (tr) at (10.50,-1.40)
+      {\textbf{80\%} train\\[-0.3mm]{\scriptsize 6{,}538 events}};
+    \node[tst] (te) at (12.95,-1.40)
+      {\textbf{20\%} test\\[-0.3mm]{\scriptsize 1{,}635 held out}};
+    \draw[ar]   (spl.south) -- ++(0,-0.30) -| (tr.north);
+    \draw[hold] (spl.south) -- ++(0,-0.30) -| (te.north);
+
+    % ---------- row 2 : four base learners, trained on the 80% only ----------
+    \node[mdl] (lgb) at (1.55,-2.95)  {\textbf{7.} LightGBM\\[-0.3mm]{\scriptsize\itshape class-weighted}};
+    \node[mdl] (xgb) at (4.75,-2.95) {\textbf{7.} XGBoost\\[-0.3mm]{\scriptsize\itshape class-weighted}};
+    \node[nn]  (mlp) at (7.95,-2.95) {\textbf{7.} MLP\\[-0.3mm]{\scriptsize 256-128-64-32}};
+    \node[nn]  (tab) at (11.15,-2.95){\textbf{7.} TabNet\\[-0.3mm]{\scriptsize attentive}};
+    \coordinate (busA) at (6.0,-2.20);
+    \draw[astramAmber,line width=1pt] (tr.south) |- (busA);
+    \draw[astramAmber,line width=1pt] (1.55,-2.20) -- (11.15,-2.20);
     \foreach \n in {lgb,xgb,mlp,tab} \draw[ar] (\n |- busA) -- (\n.north);
 
     % ---------- row 3 : stacked meta-features ----------
-    \node[bar] (m16) at (6.4,-3.95)
+    \node[bar] (m16) at (6.0,-4.45)
       {\textbf{8.} 16 meta-features $=$ 4 models $\times$ 4 class probabilities,
        generated \textbf{out-of-fold}};
-    \coordinate (busB) at (6.4,-3.05);
-    \draw[astramAmber,line width=1pt] (1.7,-3.05) -- (12.05,-3.05);
+    \coordinate (busB) at (6.0,-3.75);
+    \draw[astramAmber,line width=1pt] (1.55,-3.75) -- (11.15,-3.75);
     \foreach \n in {lgb,xgb,mlp,tab} \draw[astramAmber,line width=1pt] (\n.south) -- (\n |- busB);
     \draw[ar] (busB) -- (m16.north);
 
-    % ---------- row 4 : meta-learner and final output ----------
-    \node[meta] (meta) at (2.9,-5.85)
+    % ---------- row 4 : meta-learner, then evaluation on the untouched 20% ----
+    \node[meta] (meta) at (2.3,-5.85)
       {\textbf{9.} Meta-learner\\[-0.3mm]{\scriptsize LightGBM}};
-    \node[fin]  (out)  at (9.9,-5.85)
-      {\textbf{10.} Severity 0--3 $+$ confidence\\[-0.3mm]{\scriptsize $\rightarrow$ rule engine}};
-    \draw[ar] (m16.south) -- ++(0,-0.45) -| (meta.north);
-    \draw[ar] (meta) -- (out);
+    \node[evl]  (ev)   at (8.0,-5.85)
+      {\textbf{10.} Evaluate on the 20\%\\[-0.3mm]{\scriptsize macro-F1 · per-class recall}};
+    \node[stg,text width=26mm,minimum height=10mm,draw=astramAmber!80,fill=boxAmber]
+      (rule) at (12.3,-5.85) {\textbf{11.} Rule engine\\[-0.3mm]{\scriptsize deployment plan}};
+    \draw[ar] (m16.south) -- ++(0,-0.35) -| (meta.north);
+    \draw[ar] (meta) -- (ev);
+    \draw[ar] (ev) -- (rule);
+    % the held-out 20% travels down the right edge, untouched, to evaluation
+    % route down the right edge, then in from above so it does not cut
+    % through the rule-engine box
+    \draw[hold] (te.south) -- ++(0,-0.3) -| (14.15,-5.2)
+                -- (9.0,-5.2) -- (9.0,-5.35);
   \end{tikzpicture}
 
-  \vspace{1mm}
-  {\scriptsize Split is \textbf{stratified}, preserving class proportions. Steps 1--9 are
-   learned; the rule engine is deterministic.}
-
+  \vspace{0.5mm}
+  {\scriptsize Dashed red = the held-out 20\%, never seen during training.}
 \end{frame}
 
 \begin{frame}{Base Learners: Two Very Different Styles}
