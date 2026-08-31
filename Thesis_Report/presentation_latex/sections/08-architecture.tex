@@ -1,0 +1,130 @@
+% Pipeline diagram and base learners
+\section{Model Architecture}
+
+\begin{frame}{Pipeline Overview: End-to-End Flow}
+  \centering
+  \begin{tikzpicture}[
+      font=\small,
+      >={Stealth[length=2.2mm]},
+      stg/.style={rectangle,rounded corners=2.5pt,draw=astramBlue!70,fill=boxBlue,
+                  minimum height=11mm,text width=20mm,align=center,inner sep=2pt,
+                  line width=0.7pt},
+      uns/.style={stg,draw=astramInk!60,fill=boxPurple},
+      mdl/.style={stg,draw=astramGreen!70,fill=boxGreen,text width=27mm},
+      nn/.style={mdl,draw=astramAmber!80,fill=boxAmber},
+      bar/.style={rectangle,rounded corners=2.5pt,draw=black!35,fill=panelGrey,
+                  minimum height=10mm,text width=112mm,align=center,inner sep=2pt},
+      meta/.style={mdl,text width=44mm,minimum height=12mm},
+      fin/.style={stg,draw=astramRed!70,fill=boxRed,text width=48mm,
+                  minimum height=12mm,line width=1pt},
+      num/.style={font=\bfseries},
+      ar/.style={->,astramAmber,line width=1pt}]
+
+    % ---------- row 1 : data preparation ----------
+    \node[stg] (raw) at (0,0)      {\textbf{1.} Raw log\\[-0.3mm]{\scriptsize 8{,}173 $\times$ 46}};
+    \node[stg] (cln) at (2.55,0)   {\textbf{2.} Cleaning\\[-0.3mm]{\scriptsize impute / drop}};
+    \node[stg] (fe)  at (5.10,0)   {\textbf{3.} Features\\[-0.3mm]{\scriptsize 30 engineered}};
+    \node[uns] (km)  at (7.65,0)   {\textbf{4.} K-Means\\[-0.3mm]{\scriptsize $K = 20$}};
+    \node[stg] (enc) at (10.20,0)  {\textbf{5.} Encode\\[-0.3mm]{\scriptsize + scale}};
+    \node[stg] (spl) at (12.75,0)  {\textbf{6.} Split\\[-0.3mm]{\scriptsize 80 / 20}};
+    \foreach \a/\b in {raw/cln,cln/fe,fe/km,km/enc,enc/spl} \draw[ar] (\a) -- (\b);
+
+    % ---------- row 2 : four base learners ----------
+    \node[mdl] (lgb) at (1.7,-2.05)  {\textbf{7.} LightGBM\\[-0.3mm]{\scriptsize\itshape class-weighted}};
+    \node[mdl] (xgb) at (5.15,-2.05) {\textbf{7.} XGBoost\\[-0.3mm]{\scriptsize\itshape class-weighted}};
+    \node[nn]  (mlp) at (8.60,-2.05) {\textbf{7.} MLP\\[-0.3mm]{\scriptsize 256-128-64-32}};
+    \node[nn]  (tab) at (12.05,-2.05){\textbf{7.} TabNet\\[-0.3mm]{\scriptsize attentive}};
+    \coordinate (busA) at (12.75,-1.15);
+    \draw[astramAmber,line width=1pt] (spl.south) -- (busA);
+    \draw[astramAmber,line width=1pt] (1.7,-1.15) -- (12.75,-1.15);
+    \foreach \n in {lgb,xgb,mlp,tab} \draw[ar] (\n |- busA) -- (\n.north);
+
+    % ---------- row 3 : stacked meta-features ----------
+    \node[bar] (m16) at (6.4,-3.95)
+      {\textbf{8.} 16 meta-features $=$ 4 models $\times$ 4 class probabilities,
+       generated \textbf{out-of-fold}};
+    \coordinate (busB) at (6.4,-3.05);
+    \draw[astramAmber,line width=1pt] (1.7,-3.05) -- (12.05,-3.05);
+    \foreach \n in {lgb,xgb,mlp,tab} \draw[astramAmber,line width=1pt] (\n.south) -- (\n |- busB);
+    \draw[ar] (busB) -- (m16.north);
+
+    % ---------- row 4 : meta-learner and final output ----------
+    \node[meta] (meta) at (2.9,-5.85)
+      {\textbf{9.} Meta-learner\\[-0.3mm]{\scriptsize LightGBM}};
+    \node[fin]  (out)  at (9.9,-5.85)
+      {\textbf{10.} Severity 0--3 $+$ confidence\\[-0.3mm]{\scriptsize $\rightarrow$ rule engine}};
+    \draw[ar] (m16.south) -- ++(0,-0.45) -| (meta.north);
+    \draw[ar] (meta) -- (out);
+  \end{tikzpicture}
+
+  \vspace{1mm}
+  {\scriptsize Steps 1--9 are learned; the rule engine after step 10 is deterministic.}
+
+\end{frame}
+
+\begin{frame}{Base Learners: Two Very Different Styles}
+  \begin{columns}[T]
+    \begin{column}{0.5\textwidth}
+      \begin{exampleblock}{Gradient-boosted trees: LightGBM and XGBoost}
+        \small Hundreds of shallow decision trees built \emph{in sequence}, each
+        one specialising in the mistakes the previous trees made.
+      \end{exampleblock}
+
+      \vspace{1mm}
+      \centering
+      \begin{tikzpicture}[font=\scriptsize,>={Stealth[length=1.8mm]},
+        t/.style={draw=astramGreen!70,fill=white,rounded corners=2pt,
+                  minimum height=11mm,text width=17mm,align=center,inner sep=1.5pt},
+        ar/.style={->,astramGreen,line width=0.9pt}]
+        \node[t] (t1) at (0,0)    {\textbf{Tree 1}\\[-0.3mm]{\scriptsize first guess}};
+        \node[t] (t2) at (2.15,0) {\textbf{Tree 2}\\[-0.3mm]{\scriptsize fixes T1}};
+        \node[t] (t3) at (4.30,0) {\textbf{Tree 3}\\[-0.3mm]{\scriptsize fixes T2}};
+        \node[font=\scriptsize] (td) at (5.75,0) {$\cdots \times 1000$};
+        \draw[ar] (t1)--(t2); \draw[ar] (t2)--(t3); \draw[ar] (t3)--(td);
+      \end{tikzpicture}
+
+      \vspace{2mm}
+      \begin{block}{Configuration}
+        \small 1000 estimators, learning rate 0.03. LightGBM grows leaf-wise
+        (63 leaves), XGBoost depth-wise (depth 6). \textbf{Both use
+        class-balanced sample weighting.}
+      \end{block}
+    \end{column}
+    \begin{column}{0.47\textwidth}
+      \begin{block}{Neural approaches: MLP and TabNet}
+        \small Layers of neurons pass weighted signals forward; the weights are
+        adjusted over many passes to reduce error.
+      \end{block}
+
+      \vspace{1mm}
+      \centering
+      \begin{tikzpicture}[font=\scriptsize,>={Stealth[length=1.6mm]},
+        n/.style={circle,draw=astramAmber!80,fill=boxAmber,minimum size=3.2mm,
+                  inner sep=0pt},
+        lbl/.style={font=\scriptsize,text=astramInk}]
+        \foreach \c/\k in {0/4,1/3,2/3,3/2}{
+          \foreach \r in {1,...,\k}{
+            \node[n] at ({1.35*\c},{-0.42*\r+0.21*\k}) {};
+          }
+        }
+        \foreach \c/\w in {0/256,1/128,2/64,3/32}
+          \node[lbl] at ({1.35*\c},-1.15) {\w};
+        \foreach \c in {0,1,2}
+          \draw[->,astramAmber,line width=0.8pt]
+            ({1.35*\c+0.35},0) -- ({1.35*\c+1.0},0);
+      \end{tikzpicture}
+
+      \vspace{1mm}
+      {\scriptsize MLP hidden layers. TabNet instead uses \textbf{attention}
+      over 5 decision steps.}
+
+      \vspace{1mm}
+      \begin{alertblock}{Class weighting: the deciding choice}
+        \small\vspace{-2mm}
+        \[ w_c = \frac{n}{C\, n_c} \qquad
+           \frac{w_{\text{Critical}}}{w_{\text{High}}} \approx 16 \]
+        \small Applied to the two tree models, \textbf{not} the neural ones.
+      \end{alertblock}
+    \end{column}
+  \end{columns}
+\end{frame}

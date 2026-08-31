@@ -1,0 +1,28 @@
+% Conclusion
+\section{Conclusion}
+
+\begin{frame}{Conclusion}
+  \begin{block}{Summary}
+    \begin{itemize}
+      \item Constructed a four-class severity target from operational fields
+            where the raw log provides none, \textbf{removing both source fields}
+            from the features to keep the task honest.
+      \item Engineered 30 spatial, temporal and contextual features, including
+            unsupervised K-Means location clustering.
+      \item Trained and compared four heterogeneous classifiers plus an
+            out-of-fold stacked ensemble.
+      \item \textbf{LightGBM is the best model on macro-F1 (0.6949)} despite
+            TabNet posting the highest raw accuracy.
+      \item Reported the stacking shortfall honestly rather than omitting it.
+      \item Coupled the prediction to a deterministic recommendation engine and
+            deployed the whole pipeline as a working service.
+    \end{itemize}
+  \end{block}
+  \begin{alertblock}{Central contribution}
+    \centering On imbalanced, safety-relevant traffic data, \textbf{accuracy
+    actively misleads}: a 92.4\%-accurate model can be 97\% blind to the class
+    it exists to catch.
+  \end{alertblock}
+\end{frame}
+
+% =====================================================================

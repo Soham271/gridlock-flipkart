@@ -1,0 +1,16 @@
+% Objectives
+\section{Objectives}
+
+\begin{frame}{Objectives}
+  \vspace{2mm}
+  \begin{enumerate}\setlength{\itemsep}{5mm}
+    \item \textbf{Construct a four-class severity target} that the raw event log
+          does not contain, \key{without leaking} the fields it was built from.
+    \item \textbf{Engineer 30 spatial, temporal and contextual features},
+          including an unsupervised K-Means clustering of event coordinates.
+    \item \textbf{Train four classifiers and stack them} out-of-fold with a
+          LightGBM meta-learner, comparing all five honestly.
+    \item \textbf{Evaluate for class imbalance}, then convert the prediction
+          into a resource recommendation and deploy it as a working service.
+  \end{enumerate}
+\end{frame}

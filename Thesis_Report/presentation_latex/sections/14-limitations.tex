@@ -1,0 +1,40 @@
+% Limitations and future scope
+\section{Limitations and Future Scope}
+
+\begin{frame}{Limitations and Future Scope}
+  \begin{columns}[T]
+    \begin{column}{0.48\textwidth}
+      \begin{alertblock}{Limitations}
+        \small
+        \begin{enumerate}
+          \item \textbf{Single city, single period}: no cross-city
+                generalisation evaluated.
+          \item \textbf{Severity is a proxy}, constructed from operational
+                priority and closure fields rather than measured congestion.
+          \item \textbf{Critical recall remains low} \key{(0.36 at best)}, useful
+                as decision support, not safe unsupervised.
+          \item \key{Stacking underperformed} the base models in this run.
+          \item \textbf{The rule engine is not learned}: its manpower figures
+                encode convention, unvalidated against outcome data.
+        \end{enumerate}
+      \end{alertblock}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \begin{exampleblock}{Future scope}
+        \small
+        \begin{enumerate}
+          \item \textbf{Rare-class techniques}: SMOTE or focal loss aimed at
+                the Medium and Critical classes.
+          \item \textbf{Decision-threshold tuning}: optimise the operating
+                point for recall instead of accepting the default argmax.
+          \item \key{Class weighting for the neural models}: the single
+                change most likely to lift the MLP's 0.03 Critical recall.
+          \item \textbf{Heavier in-fold base models}: test whether that
+                explains the stacking shortfall.
+          \item \textbf{Live traffic and weather feeds}, and \textbf{multi-city
+                validation}.
+        \end{enumerate}
+      \end{exampleblock}
+    \end{column}
+  \end{columns}
+\end{frame}

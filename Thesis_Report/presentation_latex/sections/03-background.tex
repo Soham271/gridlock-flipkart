@@ -1,0 +1,39 @@
+% Problem background and positioning
+\section{Problem Background}
+
+\begin{frame}{The Gap in Existing Work}
+  \begin{columns}[T]
+    \begin{column}{0.55\textwidth}
+      \textbf{What the literature does well:}
+      \begin{itemize}
+        \item Gradient-boosted trees perform consistently well on \key{tabular}
+              incident-severity data.
+        \item Deep learning for traffic congestion is mature, but focused on
+              \emph{recurring}, sensor-driven flow.
+        \item Stacked ensembles and imbalance-aware evaluation are each well
+              established.
+      \end{itemize}
+      \vspace{2mm}
+      \textbf{What is missing:}
+      \begin{itemize}
+        \item These three threads are rarely combined in one pipeline.
+        \item Severity prediction almost never produces an \emph{operational
+              recommendation}.
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.43\textwidth}
+      \begin{block}{Positioning of this work}
+        A stacked ensemble of tree-based \emph{and} neural classifiers applied to
+        event-driven severity, evaluated with \key{front-loaded} attention to class
+        imbalance, and coupled directly to a deterministic
+        resource-recommendation engine.
+      \end{block}
+      \begin{alertblock}{Challenge}
+        Severity is \key{not recorded anywhere} in the raw log. The target
+        must be constructed, carefully.
+      \end{alertblock}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% =====================================================================

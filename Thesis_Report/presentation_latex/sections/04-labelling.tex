@@ -1,0 +1,59 @@
+% Target construction and the resulting class imbalance
+\section{The Labelling Problem}
+
+\begin{frame}[shrink]{Constructing a Target That Does Not Exist}
+  \begin{center}\small
+    No severity column exists in the raw log. The target is built by crossing two
+    fields the control room records \emph{independently}, for its own purposes.
+  \end{center}
+  \vspace{-1mm}
+  \centering
+  \begin{tikzpicture}[font=\scriptsize,node distance=6mm,
+    fld/.style={rounded corners=2pt,draw=astramBlue!60,fill=boxBlue,
+                minimum height=7mm,text width=32mm,align=center},
+    op/.style={circle,draw=astramInk!60,fill=white,inner sep=2pt},
+    cls/.style={rounded corners=2pt,minimum height=5.4mm,text width=20mm,
+                align=center,inner sep=1pt},
+    ar/.style={-{Stealth[length=1.6mm]},astramAmber,thick}]
+    \node[fld] (p) {\texttt{priority}\\ High / Low};
+    \node[fld,below=5mm of p] (r) {\texttt{requires\_road\_closure}\\ Yes / No};
+    \node[op] (cross) at ([xshift=13mm]$(p)!0.5!(r)$) {$\times$};
+    \node[cls,draw=astramGreen!60,fill=boxGreen] (c0)
+      at ([xshift=32mm,yshift=9mm]cross) {0 \ Low};
+    \node[cls,draw=astramBlue!60,fill=boxBlue,below=1.4mm of c0]   (c1) {1 \ Medium};
+    \node[cls,draw=astramAmber!70,fill=boxAmber,below=1.4mm of c1] (c2) {2 \ High};
+    \node[cls,draw=astramRed!60,fill=boxRed,below=1.4mm of c2]     (c3) {3 \ Critical};
+    \draw[ar] (p) -- (cross);
+    \draw[ar] (r) -- (cross);
+    \foreach \n in {c0,c1,c2,c3} \draw[ar] (cross) -- (\n.west);
+  \end{tikzpicture}
+
+  \vspace{2mm}
+  \begin{columns}[T]
+    \begin{column}{0.44\textwidth}
+      \centering\small
+      \setlength{\tabcolsep}{4pt}
+      \begin{tabular}{clrr}
+        \toprule
+        Code & Label & Count & Share \\
+        \midrule
+        0 & Low      & 2{,}764 & 33.8\% \\
+        1 & Medium   &   379   & \bad{4.6\%} \\
+        2 & High     & 4{,}733 & 57.9\% \\
+        3 & Critical &   297   & \bad{3.6\%} \\
+        \bottomrule
+      \end{tabular}
+
+      \vspace{1mm}
+      {\scriptsize Low and High are \key{91.7\%} of all events.}
+    \end{column}
+    \begin{column}{0.54\textwidth}
+      \begin{alertblock}{Both source fields are then \emph{removed}}
+        \small If left in the feature set, a model would simply re-learn this
+        deterministic mapping instead of inferring severity from spatial,
+        temporal and contextual signals, and would be \key{useless on a genuinely
+        new, unassessed event}.
+      \end{alertblock}
+    \end{column}
+  \end{columns}
+\end{frame}

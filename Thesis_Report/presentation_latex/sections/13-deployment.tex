@@ -1,0 +1,63 @@
+% Three-tier system architecture and the request lifecycle
+\section{Deployment}
+
+\begin{frame}{System Architecture and Request Flow}
+  \centering
+  \begin{tikzpicture}[font=\small,node distance=10mm,
+    tier/.style={rounded corners=3pt,minimum height=17mm,text width=34mm,
+                 align=center,inner sep=3pt,line width=1pt},
+    ar/.style={-{Stealth[length=2.6mm]},astramAmber,line width=1.2pt}]
+
+    \node[tier,draw=astramBlue!70,fill=boxBlue] (fe)
+      {\textbf{Browser}\ \ \texttt{:3000}\\[1mm]
+       {\scriptsize Next.js 16 · React\\ TypeScript · Tailwind}};
+    \node[tier,draw=astramGreen!70,fill=boxGreen,right=of fe] (go)
+      {\textbf{API layer}\ \ \texttt{:8080}\\[1mm]
+       {\scriptsize Go 1.26 · Gin\\ routing · CORS · validation}};
+    \node[tier,draw=astramAmber!80,fill=boxAmber,right=of go] (py)
+      {\textbf{Inference sidecar}\ \ \texttt{:8001}\\[1mm]
+       {\scriptsize Python · FastAPI\\ model bundle in memory}};
+
+    \draw[ar] (fe) -- node[above,font=\scriptsize]{JSON} (go);
+    \draw[ar] (go) -- node[above,font=\scriptsize]{\texttt{/infer}} (py);
+    \draw[ar] (py.south) -- ++(0,-5mm) -| node[below,pos=0.25,font=\scriptsize]
+      {severity + recommendation} (fe.south);
+  \end{tikzpicture}
+
+  \vspace{6mm}
+  \begin{columns}[T]
+    \begin{column}{0.52\textwidth}
+      \textbf{\small Request lifecycle for \texttt{POST /api/predict}}
+      \vspace{1mm}
+      {\footnotesize
+      \begin{enumerate}\itemsep1pt
+        \item Browser posts the event attributes
+        \item Gin handler validates and binds the JSON
+        \item Go forwards to the sidecar (5\,s timeout)
+        \item Sidecar rebuilds the feature vector
+        \item Base models $\rightarrow$ meta-learner
+        \item Rule engine attaches the recommendation
+        \item JSON returns up the chain
+      \end{enumerate}}
+    \end{column}
+    \begin{column}{0.46\textwidth}
+      \footnotesize
+      \setlength{\tabcolsep}{4pt}
+      \begin{tabular}{llp{2.1cm}}
+        \toprule
+        Method & Endpoint & Returns \\
+        \midrule
+        POST & \texttt{/api/predict} & severity $+$ plan \\
+        GET  & \texttt{/api/meta}    & corridors, zones \\
+        GET  & \texttt{/api/locate}  & station $+$ cluster \\
+        GET  & \texttt{/api/health}  & sidecar status \\
+        \bottomrule
+      \end{tabular}
+
+      \vspace{2mm}
+      {\scriptsize Models are Python objects \key{Go cannot load}, so each tier stays
+      in the language it is strongest in. Both are containerised with Docker
+      Compose.}
+    \end{column}
+  \end{columns}
+\end{frame}

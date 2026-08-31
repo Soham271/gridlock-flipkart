@@ -1,0 +1,56 @@
+% Precision, recall and why accuracy misleads on imbalanced data
+\section{Evaluation Methodology}
+
+\begin{frame}{Why Accuracy Is the Wrong Headline Metric}
+  \centering
+  \begin{tikzpicture}[font=\small,
+    cell/.style={rounded corners=2pt,minimum width=32mm,minimum height=15mm,
+                 align=center,inner sep=2pt},
+    hdr/.style={font=\scriptsize\bfseries,align=center}]
+
+    % column / row headings
+    \node[hdr] at (0,1.05)  {Predicted\\Critical};
+    \node[hdr] at (3.6,1.05) {Predicted\\Not Critical};
+    \node[hdr,anchor=east] at (-1.95,0)    {Actually\\Critical (59)};
+    \node[hdr,anchor=east] at (-1.95,-1.8) {Actually\\Not (1{,}576)};
+
+    % the four cells
+    \node[cell,draw=astramGreen!60,fill=boxGreen] at (0,0)
+      {{\Large\bfseries\color{astramGreen}2}\\[-0.5mm]{\scriptsize caught (TP)}};
+    \node[cell,draw=astramRed!70,fill=boxRed,line width=1pt] at (3.6,0)
+      {{\Large\bfseries\color{astramRed}57}\\[-0.5mm]{\scriptsize \textbf{missed} (FN)}};
+    \node[cell,draw=black!25,fill=panelGrey] at (0,-1.8)
+      {{\Large\bfseries 0}\\[-0.5mm]{\scriptsize false alarms (FP)}};
+    \node[cell,draw=black!25,fill=panelGrey] at (3.6,-1.8)
+      {{\Large\bfseries 1{,}576}\\[-0.5mm]{\scriptsize correctly calm (TN)}};
+
+    % metrics read off the matrix
+    \node[anchor=west,align=left,text width=52mm] at (6.0,0.15)
+      {\textbf{Precision} $=\dfrac{TP}{TP+FP}=\dfrac{2}{2}=$
+       \textbf{\color{astramInk}1.00}\\[1mm]
+       {\scriptsize Of what it \emph{called} Critical, how much was?}};
+    \node[anchor=west,align=left,text width=52mm] at (6.0,-1.75)
+      {\textbf{Recall} $=\dfrac{TP}{TP+FN}=\dfrac{2}{59}=$
+       \textbf{\color{astramRed}0.03}\\[1mm]
+       {\scriptsize Of what \emph{truly was} Critical, how much did it catch?}};
+  \end{tikzpicture}
+
+  \vspace{3mm}
+  \begin{columns}[T]
+    \begin{column}{0.5\textwidth}
+      \begin{alertblock}{The trap: MLP on the Critical class}
+        \small \textbf{92.4\% accurate, 3\% Critical recall.} 91.7\% of events
+        are Low or High, so a model can lean on those two and still be blind to
+        the class the system exists to catch.
+      \end{alertblock}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \begin{exampleblock}{Therefore: macro-F1, not accuracy}
+        \vspace{-4mm}
+        \[ F1_c = \frac{2 P_c R_c}{P_c + R_c}, \qquad
+           \text{macro-F1} = \frac{1}{C}\textstyle\sum_{c=1}^{C} F1_c \]
+        \small Every class counts equally, so ignoring Critical is punished.
+      \end{exampleblock}
+    \end{column}
+  \end{columns}
+\end{frame}

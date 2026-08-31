@@ -1,0 +1,52 @@
+% Out-of-fold stacked generalization
+\section{Stacked Generalization}
+
+\begin{frame}[shrink]{Stacking Without Leakage}
+  \begin{alertblock}{The problem}
+    A model that has \textbf{already seen} an event predicts it far too
+    confidently. Training the meta-learner on those inflated probabilities
+    teaches it to trust an accuracy that \textbf{will not exist} on real new
+    events.
+  \end{alertblock}
+
+  \begin{columns}[T]
+    \begin{column}{0.55\textwidth}
+      \centering
+      \begin{tikzpicture}[font=\scriptsize,
+        tr/.style={draw=astramBlue!50,fill=boxBlue,minimum width=11.5mm,
+                   minimum height=5mm,inner sep=1pt},
+        pr/.style={tr,draw=astramAmber!70,fill=boxAmber}]
+        \foreach \r in {1,...,5}{
+          \node[anchor=east] at (-0.2,{-0.62*\r}) {Fold \r};
+          \foreach \c in {1,...,5}{
+            \pgfmathparse{int(\r==\c)}
+            \ifnum\pgfmathresult=1
+              \node[pr] at ({1.30*\c},{-0.62*\r}) {predict};
+            \else
+              \node[tr] at ({1.30*\c},{-0.62*\r}) {train};
+            \fi
+          }
+        }
+      \end{tikzpicture}
+
+      \vspace{2mm}
+      {\scriptsize In each fold, fresh copies of \textbf{all four} base models
+      train on the blue slices and predict the orange one.}
+    \end{column}
+    \begin{column}{0.43\textwidth}
+      \begin{exampleblock}{Out-of-fold matrix}
+        \small\vspace{-2mm}
+        \[ z_i = \big[\, p^{(1)}_i \,\|\, p^{(2)}_i \,\|\, p^{(3)}_i
+                        \,\|\, p^{(4)}_i \,\big] \in \mathbb{R}^{16} \]
+        \small $p^{(m)}_i$ is model $m$'s class-probability vector for event $i$,
+        from the fold that \textbf{excluded} $i$. Stacked: $6{,}538 \times 16$.
+      \end{exampleblock}
+      \begin{block}{Meta-learner}
+        \small A LightGBM trained on those 16 columns, learning how much to trust
+        each base model rather than averaging them naively.
+      \end{block}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% =====================================================================

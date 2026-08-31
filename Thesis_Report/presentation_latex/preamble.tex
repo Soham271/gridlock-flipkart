@@ -1,0 +1,64 @@
+% Packages, beamer theme and colour scheme for the deck.
+% (\documentclass lives in main.tex)
+
+\usetheme{Madrid}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{booktabs}
+\usepackage{colortbl}
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\usepackage{tikz}
+\usepackage{array}
+\usetikzlibrary{arrows.meta,positioning,shapes.geometric,fit,backgrounds,calc}
+
+% ---------- colour scheme ----------
+\definecolor{astramInk}{RGB}{61,59,107}      % structure / headings
+\definecolor{astramAmber}{RGB}{194,106,2}    % accent
+\definecolor{astramRed}{RGB}{176,42,55}      % warnings
+\definecolor{astramGreen}{RGB}{27,127,75}    % positives
+\definecolor{astramBlue}{RGB}{43,89,138}
+\definecolor{panelGrey}{RGB}{244,245,247}
+\definecolor{boxBlue}{RGB}{228,237,246}
+\definecolor{boxGreen}{RGB}{232,241,233}
+\definecolor{boxAmber}{RGB}{253,240,226}
+\definecolor{boxRed}{RGB}{253,242,242}
+\definecolor{boxPurple}{RGB}{243,240,248}
+\definecolor{leakYellow}{RGB}{255,249,219}
+
+\setbeamercolor{structure}{fg=astramInk}
+\setbeamercolor{alerted text}{fg=astramRed}
+\setbeamercolor{block title}{bg=astramInk,fg=white}
+\setbeamercolor{block title alerted}{bg=astramRed,fg=white}
+\setbeamercolor{block title example}{bg=astramGreen,fg=white}
+\setbeamercolor{block body example}{bg=boxGreen,fg=black}
+\setbeamercolor{block body}{bg=panelGrey,fg=black}
+\setbeamercolor{block body alerted}{bg=boxRed,fg=black}
+\setbeamercolor{block body example}{bg=boxGreen}
+\setbeamertemplate{blocks}[rounded][shadow=true]
+\setbeamertemplate{navigation symbols}{}
+\setbeamertemplate{itemize item}{\color{astramAmber}$\blacktriangleright$}
+\setbeamertemplate{itemize subitem}{\color{astramAmber}\textbullet}
+\setbeamerfont{block title}{size=\small}
+\setbeamerfont{frametitle}{size=\large}
+
+% tighter tables
+\renewcommand{\arraystretch}{1.15}
+\newcommand{\good}[1]{\textbf{\color{astramGreen}#1}}
+\newcommand{\bad}[1]{\textbf{\color{astramRed}#1}}
+\newcommand{\amb}[1]{\textbf{\color{astramAmber}#1}}
+% \key{} = marker-pen highlight. Each word gets its own coloured box so the
+% phrase can still break across lines (no soul/lua-ul dependency needed).
+\definecolor{hlYellow}{RGB}{255,231,133}
+\makeatletter
+\newcommand{\key}[1]{\begingroup\setlength{\fboxsep}{1.6pt}%
+  \@keyscan#1 \@nil\endgroup}
+\def\@keyscan#1 #2\@nil{%
+  \colorbox{hlYellow}{\strut#1}%
+  \def\@keyrest{#2}%
+  \ifx\@keyrest\@empty\else
+    % coloured spacer sits flush against both words, so the stroke is
+    % continuous; \allowbreak still lets the phrase wrap between words
+    \nobreak\colorbox{hlYellow}{\strut\kern0.5pt}\allowbreak
+    \@keyscan#2\@nil\fi}
+\makeatother

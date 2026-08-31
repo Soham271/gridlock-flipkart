@@ -1,0 +1,113 @@
+% Rule engine and worked example
+\section{Recommendation Engine}
+
+\begin{frame}{From Severity to a Deployment Plan}
+  \begin{block}{Separation of concerns}
+    \small The models answer \emph{how severe}; the rule engine answers
+    \emph{what to do}. Deterministic and separate, so it stays auditable and
+    tunable \textbf{without retraining}.
+  \end{block}
+
+  \vspace{1mm}
+  \centering\small
+  \setlength{\tabcolsep}{5pt}
+  \begin{tabular}{lccll}
+    \toprule
+    Severity & Officers & Delay & Barricading & Diversion \\
+    \midrule
+    Low            & 2--4         & 15 min & Cones and indicators
+                   & None \\
+    Medium         & 4--8         & 30 min & Partial, 1 lane $+$ marshal
+                   & Advisory alternate route \\
+    High           & 8--14        & 60 min & Full, both sides $+$ 2 marshals
+                   & Mandatory $+$ signage \\
+    \bad{Critical} & \bad{15--25} & 90 min & Corridor lockdown $+$ chain
+                   & Police-escorted $+$ advisory \\
+    \bottomrule
+  \end{tabular}
+
+  \vspace{3mm}
+  \begin{columns}[T]
+    \begin{column}{0.44\textwidth}
+      \begin{exampleblock}{Contextual multipliers}
+        \begin{minipage}[t][13mm][t]{\linewidth}
+          \small\vspace{-2mm}
+          \[ n = \big\lfloor \lfloor n_{\text{base}}\, 1.4^{\,c} \rfloor\, 1.25^{\,p} \big\rfloor \]
+          \small $c, p \in \{0,1\}$: corridor, peak (7--10, 17--21).
+        \end{minipage}
+      \end{exampleblock}
+    \end{column}
+    \begin{column}{0.54\textwidth}
+      \begin{block}{Cause-specific actions}
+        \begin{minipage}[t][13mm][t]{\linewidth}
+          \small \texttt{accident} $\geq$ High: ambulance lane open, trauma
+          centre on standby. \texttt{public\_event} $\geq$ High: crowd-control
+          perimeter. Pre-announced: deploy 2\,h early.
+        \end{minipage}
+      \end{block}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Worked Example: One Event End to End}
+  \centering
+  \begin{tikzpicture}[
+      font=\small, >={Stealth[length=2.6mm]},
+      hd/.style={rectangle,text=white,text width=30mm,minimum height=6.5mm,
+                 align=center,inner sep=1.5pt,font=\small\bfseries},
+      bd/.style={rectangle,text width=30mm,minimum height=24mm,align=left,
+                 inner sep=3pt,anchor=north,font=\scriptsize},
+      cd/.style={rounded corners=2.5pt,line width=1pt,inner sep=0pt},
+      ar/.style={->,astramAmber,line width=1.3pt}]
+
+    \node[hd,fill=astramBlue!75] (h0) at (0,0) {1.~Event reported};
+    \node[bd,fill=boxBlue] (b0) at (h0.south) {cause: accident\\ time: 18:30 Tue\\ corridor: ORR\\ duration: 90 min\\[1mm]
+       \emph{as first logged}};
+    \node[cd,draw=astramBlue!70,fit=(h0)(b0)] (c0) {};
+    \node[hd,fill=astramInk!75] (h4) at (4,0) {2.~Feature vector};
+    \node[bd,fill=boxPurple] (b4) at (h4.south) {cause $\rightarrow$ encoded\\ 18:30 $\rightarrow$ evening peak\\
+       lat/long $\rightarrow$ cluster 7\\[1mm] \emph{30 features assembled}};
+    \node[cd,draw=astramInk!60,fit=(h4)(b4)] (c4) {};
+    \node[hd,fill=astramGreen!75] (h8) at (8,0) {3.~Base models};
+    \node[bd,fill=boxGreen] (b8) at (h8.south) {LightGBM \hfill 0.71\\ XGBoost \hfill 0.68\\ MLP \hfill 0.62\\
+       TabNet \hfill 0.65\\[1mm] \emph{stacked by meta-learner}};
+    \node[cd,draw=astramGreen!70,fit=(h8)(b8)] (c8) {};
+    \node[hd,fill=astramRed!75] (h12) at (12,0) {4.~Verdict};
+    \node[bd,fill=boxRed] (b12) at (h12.south) {\centering\vspace{0.5mm}
+       {\Large\bfseries\color{astramRed} HIGH}\\[1.5mm]
+       severity 2 of 3\\ confidence 0.71\par};
+    \node[cd,draw=astramRed!70,fit=(h12)(b12)] (c12) {};
+
+    \draw[ar] (c0) -- (c4);
+    \draw[ar] (c4) -- (c8);
+    \draw[ar] (c8) -- (c12);
+  \end{tikzpicture}
+
+  \vspace{3mm}
+  \begin{columns}[T]
+    \begin{column}{0.46\textwidth}
+      \begin{exampleblock}{5. Rule engine (deterministic)}
+        \begin{minipage}[t][14mm][t]{\linewidth}
+          \small Base for High: \texttt{8--14}\\
+          $\lfloor 8(1.4)\rfloor = 11,\ \lfloor 11(1.25)\rfloor = 13$\\
+          $\lfloor 14(1.4)\rfloor = 19,\ \lfloor 19(1.25)\rfloor = 23$\\[1mm]
+          $\Rightarrow$ {\large\amb{13--23 officers}}
+        \end{minipage}
+      \end{exampleblock}
+    \end{column}
+    \begin{column}{0.52\textwidth}
+      \begin{block}{Recommendation returned}
+        \begin{minipage}[t][14mm][t]{\linewidth}
+          \small 60 min delay; full barricade both sides, 2 marshal points;
+          mandatory alternate route with signage; ambulance lane kept open.
+        \end{minipage}
+      \end{block}
+    \end{column}
+  \end{columns}
+
+  \vspace{1mm}
+  {\scriptsize\emph{Rule-engine figures are exact; the class probabilities shown
+  are illustrative.}}
+\end{frame}
+
+% =====================================================================
