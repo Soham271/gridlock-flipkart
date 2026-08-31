@@ -1,27 +1,33 @@
 % References, then the closing thank-you slide
 \begin{frame}{References}
-  \footnotesize
-  \begin{itemize}
-    \item G.\ Ke et al., ``LightGBM: A Highly Efficient Gradient Boosting
-          Decision Tree,'' \emph{NeurIPS}, 2017.
-    \item T.\ Chen \& C.\ Guestrin, ``XGBoost: A Scalable Tree Boosting
-          System,'' \emph{KDD}, 2016.
-    \item S.\ O.\ Arik \& T.\ Pfister, ``TabNet: Attentive Interpretable Tabular
-          Learning,'' \emph{AAAI}, 2021.
-    \item D.\ H.\ Wolpert, ``Stacked Generalization,'' \emph{Neural Networks},
-          1992.
-    \item N.\ V.\ Chawla et al., ``SMOTE: Synthetic Minority Over-sampling
-          Technique,'' \emph{JAIR}, 2002.
-    \item D.\ P.\ Kingma \& J.\ Ba, ``Adam: A Method for Stochastic
-          Optimization,'' \emph{ICLR}, 2015.
-    \item S.\ Iranitalab \& A.\ Khattak, ``Comparison of Four Statistical and
-          Machine Learning Methods for Crash Severity Prediction,''
-          \emph{Accident Analysis \& Prevention}, 2017.
-    \item M.\ Zhu et al., ``Crash Injury Severity Prediction Using an Ordinal
-          Classification Machine Learning Approach,'' \emph{IJERPH}, 2021.
-    \item H.\ Yin et al., ``Deep Learning on Traffic Prediction: Methods,
-          Analysis and Future Directions,'' \emph{IEEE T-ITS}, 2022.
-  \end{itemize}
+  \scriptsize
+  \begin{columns}[T]
+    \begin{column}{0.49\textwidth}
+      \textbf{\color{astramInk}Methods}
+      \begin{itemize}\itemsep2pt
+        \item G.\ Ke et al., \href{https://papers.nips.cc/paper/6907-lightgbm-a-highly-efficient-gradient-boosting-decision-tree}{``LightGBM: A Highly Efficient Gradient Boosting Decision Tree''}, \emph{NeurIPS}, 2017.
+        \item T.\ Chen \& C.\ Guestrin, \href{https://arxiv.org/abs/1603.02754}{``XGBoost: A Scalable Tree Boosting System''}, \emph{KDD}, 2016.
+        \item S.\ O.\ Arik \& T.\ Pfister, \href{https://arxiv.org/abs/1908.07442}{``TabNet: Attentive Interpretable Tabular Learning''}, \emph{AAAI}, 2021.
+        \item D.\ H.\ Wolpert, \href{https://doi.org/10.1016/S0893-6080(05)80023-1}{``Stacked Generalization''}, \emph{Neural Networks}, 1992.
+        \item N.\ V.\ Chawla et al., \href{https://doi.org/10.1613/jair.953}{``SMOTE: Synthetic Minority Over-sampling Technique''}, \emph{JAIR}, 2002.
+        \item D.\ P.\ Kingma \& J.\ Ba, \href{https://arxiv.org/abs/1412.6980}{``Adam: A Method for Stochastic Optimization''}, \emph{ICLR}, 2015.
+        \item L.\ Grinsztajn et al., \href{https://arxiv.org/abs/2207.08815}{``Why do tree-based models still outperform deep learning on tabular data?''}, \emph{NeurIPS}, 2022.
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.49\textwidth}
+      \textbf{\color{astramInk}Domain}
+      \begin{itemize}\itemsep2pt
+        \item A.\ Iranitalab \& A.\ Khattak, \href{https://doi.org/10.1016/j.aap.2017.08.008}{``Comparison of Four Statistical and Machine Learning Methods for Crash Severity Prediction''}, \emph{Accident Analysis \& Prevention}, 108:27--36, 2017.
+        \item M.\ Zhu et al., ``Crash Injury Severity Prediction Using an Ordinal Classification Machine Learning Approach'', \emph{IJERPH}, 2021.
+        \item X.\ Yin et al., \href{https://arxiv.org/abs/2004.08555}{``Deep Learning on Traffic Prediction: Methods, Analysis and Future Directions''}, \emph{IEEE T-ITS}, 2021.
+        \item A.\ Mukhopadhyay et al., \href{https://arxiv.org/abs/2006.04200}{``A Review of Incident Prediction, Resource Allocation, and Dispatch Models for Emergency Management''}, \emph{Accident Analysis \& Prevention}, 2022.
+        \item \href{https://arxiv.org/abs/2507.22529}{``Accident-Driven Congestion Prediction and Simulation: An Explainable Framework Using Advanced Clustering and Bayesian Networks''}, arXiv:2507.22529, 2025.
+      \end{itemize}
+    \end{column}
+  \end{columns}
+  \vspace{1mm}
+  {\scriptsize Titles link to the source. Software: scikit-learn, LightGBM,
+   XGBoost, pytorch-tabnet, FastAPI, Gin, Next.js.}
 \end{frame}
 
 % =====================================================================

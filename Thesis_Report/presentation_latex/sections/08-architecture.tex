@@ -14,7 +14,8 @@
                   minimum height=8.5mm},
       tst/.style={stg,draw=astramRed!70,fill=boxRed,text width=21mm,
                   minimum height=8.5mm,dashed},
-      mdl/.style={stg,draw=astramGreen!70,fill=boxGreen,text width=26mm},
+      mdl/.style={stg,draw=astramGreen!70,fill=boxGreen,text width=29mm,
+                  minimum height=11.5mm},
       nn/.style={mdl,draw=astramAmber!80,fill=boxAmber},
       bar/.style={rectangle,rounded corners=2.5pt,draw=black!35,fill=panelGrey,
                   minimum height=8mm,text width=104mm,align=center,inner sep=2pt},
@@ -42,13 +43,13 @@
     \draw[hold] (spl.south) -- ++(0,-0.30) -| (te.north);
 
     % ---------- row 2 : four base learners, trained on the 80% only ----------
-    \node[mdl] (lgb) at (1.55,-2.95)  {\textbf{7.} LightGBM\\[-0.3mm]{\scriptsize\itshape class-weighted}};
-    \node[mdl] (xgb) at (4.75,-2.95) {\textbf{7.} XGBoost\\[-0.3mm]{\scriptsize\itshape class-weighted}};
-    \node[nn]  (mlp) at (7.95,-2.95) {\textbf{7.} MLP\\[-0.3mm]{\scriptsize 256-128-64-32}};
-    \node[nn]  (tab) at (11.15,-2.95){\textbf{7.} TabNet\\[-0.3mm]{\scriptsize attentive}};
+    \node[mdl] (lgb) at (1.70,-2.95)  {\textbf{7.} LightGBM\\[-0.3mm]{\scriptsize boosted trees\\\itshape rare classes upweighted}};
+    \node[mdl] (xgb) at (4.90,-2.95) {\textbf{7.} XGBoost\\[-0.3mm]{\scriptsize boosted trees\\\itshape rare classes upweighted}};
+    \node[nn]  (mlp) at (8.10,-2.95) {\textbf{7.} MLP\\[-0.3mm]{\scriptsize neural net, 4 layers\\\itshape no class weighting}};
+    \node[nn]  (tab) at (11.30,-2.95){\textbf{7.} TabNet\\[-0.3mm]{\scriptsize attention network\\\itshape no class weighting}};
     \coordinate (busA) at (6.0,-2.20);
     \draw[astramAmber,line width=1pt] (tr.south) |- (busA);
-    \draw[astramAmber,line width=1pt] (1.55,-2.20) -- (11.15,-2.20);
+    \draw[astramAmber,line width=1pt] (1.70,-2.20) -- (11.30,-2.20);
     \foreach \n in {lgb,xgb,mlp,tab} \draw[ar] (\n |- busA) -- (\n.north);
 
     % ---------- row 3 : stacked meta-features ----------
@@ -56,13 +57,13 @@
       {\textbf{8.} 16 meta-features $=$ 4 models $\times$ 4 class probabilities,
        generated \textbf{out-of-fold}};
     \coordinate (busB) at (6.0,-3.75);
-    \draw[astramAmber,line width=1pt] (1.55,-3.75) -- (11.15,-3.75);
+    \draw[astramAmber,line width=1pt] (1.70,-3.75) -- (11.30,-3.75);
     \foreach \n in {lgb,xgb,mlp,tab} \draw[astramAmber,line width=1pt] (\n.south) -- (\n |- busB);
     \draw[ar] (busB) -- (m16.north);
 
     % ---------- row 4 : meta-learner, then evaluation on the untouched 20% ----
     \node[meta] (meta) at (2.3,-5.85)
-      {\textbf{9.} Meta-learner\\[-0.3mm]{\scriptsize LightGBM}};
+      {\textbf{9.} Meta-learner\\[-0.3mm]{\scriptsize learns which model to trust}};
     \node[evl]  (ev)   at (8.0,-5.85)
       {\textbf{10.} Evaluate on the 20\%\\[-0.3mm]{\scriptsize macro-F1 · per-class recall}};
     \node[stg,text width=26mm,minimum height=10mm,draw=astramAmber!80,fill=boxAmber]
