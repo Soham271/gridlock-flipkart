@@ -1,0 +1,4 @@
+- [User identity](user-identity.md) — Sahil Pal (2023IMT-069), one of three students on this BTP
+- [BTP project context](btp-project-context.md) — what the system is, headline results, deliverable state
+- [Presentation speaking split](btp-presentation-speaking-split.md) — Sahil speaks intro + slides 3, 4, 5, 6, 18, 19
+- [Literature gap risk](btp-literature-gap-risk.md) — the slide 4 novelty claim recent papers weaken, and how to reframe
