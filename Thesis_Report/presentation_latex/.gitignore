@@ -8,3 +8,6 @@
 *.fls
 *.fdb_latexmk
 *.synctex.gz
+
+# preview renders (pdftoppm output) land here; real figures live in figs/
+/*.png
