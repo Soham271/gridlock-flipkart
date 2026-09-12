@@ -1,5 +1,4 @@
 import type { Metadata } from "next"
-import Script from "next/script"
 import { Space_Grotesk, IBM_Plex_Sans, IBM_Plex_Mono } from "next/font/google"
 import "./globals.css"
 import "leaflet/dist/leaflet.css"
@@ -39,15 +38,6 @@ export default function RootLayout({
         className={`${spaceGrotesk.variable} ${ibmPlexSans.variable} ${ibmPlexMono.variable} font-body bg-[var(--bg-base)] text-[var(--text-primary)] min-h-screen`}
       >
         {children}
-
-        {/* ReMOAT promoter — non-critical, app remains functional if it fails */}
-        <Script
-          src="https://cdn.remoat.dev/promoter/remoat-promoter.min.js"
-          strategy="afterInteractive"
-          onError={(error) => {
-            console.warn("ReMOAT promoter failed to load:", error)
-          }}
-        />
       </body>
     </html>
   )
