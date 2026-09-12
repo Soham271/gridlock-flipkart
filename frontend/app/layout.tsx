@@ -1,4 +1,5 @@
 import type { Metadata } from "next"
+import Script from "next/script"
 import { Space_Grotesk, IBM_Plex_Sans, IBM_Plex_Mono } from "next/font/google"
 import "./globals.css"
 import "leaflet/dist/leaflet.css"
@@ -38,6 +39,13 @@ export default function RootLayout({
         className={`${spaceGrotesk.variable} ${ibmPlexSans.variable} ${ibmPlexMono.variable} font-body bg-[var(--bg-base)] text-[var(--text-primary)] min-h-screen`}
       >
         {children}
+
+        {/* ReMOAT promoter badge. No onError handler — this is a server
+            component, and passing one breaks prerendering. */}
+        <Script
+          src="https://cdn.remoat.dev/promoter/remoat-promoter.min.js"
+          strategy="afterInteractive"
+        />
       </body>
     </html>
   )
