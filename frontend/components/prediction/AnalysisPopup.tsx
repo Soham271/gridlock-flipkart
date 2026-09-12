@@ -16,7 +16,9 @@ function useTypewriter(text: string, speed = 18, enabled = true) {
   const [done, setDone] = useState(false)
 
   useEffect(() => {
-    if (!enabled) { setDisplayed(text); setDone(true); return }
+    if (!enabled) return
+    // Restarting the typewriter for new text is the point of this effect.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setDisplayed("")
     setDone(false)
     if (!text) return
@@ -37,7 +39,9 @@ function useTypewriter(text: string, speed = 18, enabled = true) {
     return () => { cancelled = true; clearTimeout(t) }
   }, [text, speed, enabled])
 
-  return { displayed, done }
+  // When disabled (reduced motion, or the result isn't showing yet) the full
+  // text is simply reported as already typed.
+  return enabled ? { displayed, done } : { displayed: text, done: true }
 }
 
 /* ── Glow result card wrapper ── */
@@ -85,12 +89,13 @@ export default function AnalysisPopup({ open, loading, result, error, entry, onC
   const [showButtons, setShowButtons] = useState(false)
 
   // Hold API result until animation is ready
-  const apiResultRef = useRef<PredictResponse | null>(null)
+  const [heldResult, setHeldResult] = useState<PredictResponse | null>(null)
   const apiDoneRef = useRef(false)
   const checklistDoneRef = useRef(false)
 
-  const summaryText = (apiResultRef.current || result)
-    ? `${(apiResultRef.current || result)!.severity_label} severity detected with ${((apiResultRef.current || result)!.confidence * 100).toFixed(1)}% confidence. Zone ${(apiResultRef.current || result)!.location_cluster} cluster.`
+  const displayResult = heldResult ?? result
+  const summaryText = displayResult
+    ? `${displayResult.severity_label} severity detected with ${(displayResult.confidence * 100).toFixed(1)}% confidence. Zone ${displayResult.location_cluster} cluster.`
     : ""
 
   const { displayed, done: twDone } = useTypewriter(summaryText, 18, !reduced && showResult)
@@ -113,21 +118,21 @@ export default function AnalysisPopup({ open, loading, result, error, entry, onC
     }
   }, [])
 
-  // Track loading/error via refs so the checklist animation doesn't get cancelled
+  // Track loading via a ref so the checklist animation doesn't get cancelled
   const loadingRef = useRef(loading)
-  const errorRef = useRef(error)
-  loadingRef.current = loading
-  errorRef.current = error
+  useEffect(() => { loadingRef.current = loading })
 
   // Reset on open/close
   useEffect(() => {
     if (!open) {
+      // Tearing down the animation sequence when the popup closes.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setCheckedCount(0)
       setChecklistDone(false)
       setShowResult(false)
       setShowSeverity(false)
       setShowButtons(false)
-      apiResultRef.current = null
+      setHeldResult(null)
       apiDoneRef.current = false
       checklistDoneRef.current = false
       loadingStartedRef.current = false
@@ -174,7 +179,9 @@ export default function AnalysisPopup({ open, loading, result, error, entry, onC
   // When API result arrives — store it, DON'T force checkmarks
   useEffect(() => {
     if (!loading && result && open) {
-      apiResultRef.current = result
+      // Latches the API result so the checklist animation can finish first.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setHeldResult(result)
       apiDoneRef.current = true
       // Only reveal if checklist already finished; otherwise checklist will call tryRevealResult when it's done
       if (checklistDoneRef.current) {
@@ -183,7 +190,6 @@ export default function AnalysisPopup({ open, loading, result, error, entry, onC
     }
   }, [loading, result, open, tryRevealResult])
 
-  const displayResult = apiResultRef.current || result
   const color = displayResult ? (SEVERITY_COLORS[displayResult.severity_label] ?? "var(--accent-signal)") : "var(--accent-signal)"
 
   return (

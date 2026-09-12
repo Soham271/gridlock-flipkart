@@ -125,6 +125,8 @@ export default function EventDateTimePicker({
 
   useEffect(() => {
     if (open) return
+    // Re-syncs the calendar view to the committed value once the popup closes.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setViewMonth(value.month)
     setViewYear(now.getFullYear())
   }, [value.month, open])

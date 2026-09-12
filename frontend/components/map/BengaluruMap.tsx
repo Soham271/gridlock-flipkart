@@ -1,5 +1,5 @@
 "use client"
-import { useEffect, useState } from "react"
+import { useEffect } from "react"
 import { MapContainer, TileLayer, Marker, Popup, useMapEvents, useMap } from "react-leaflet"
 import L from "leaflet"
 import "leaflet/dist/leaflet.css"
@@ -7,7 +7,7 @@ import { HistoryEntry } from "@/types"
 import { SEVERITY_COLORS } from "@/lib/severity"
 
 if (typeof window !== "undefined") {
-  delete (L.Icon.Default.prototype as any)._getIconUrl
+  delete (L.Icon.Default.prototype as { _getIconUrl?: unknown })._getIconUrl
   L.Icon.Default.mergeOptions({
     iconRetinaUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png",
     iconUrl:       "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png",
@@ -54,13 +54,8 @@ interface Props {
 }
 
 export default function BengaluruMap({ entries = [], onMapClick, pickedLocation, height = "400px" }: Props) {
-  const [mounted, setMounted] = useState(false)
-  useEffect(() => { setMounted(true) }, [])
-
-  if (!mounted) {
-    return <div style={{ height }} className="rounded-xl overflow-hidden border border-[var(--border-subtle)] w-full bg-[#0c0d10]" />
-  }
-
+  // Every caller loads this with `dynamic(..., { ssr: false })`, so it is
+  // already client-only — no mount gate needed.
   return (
     <div style={{ height }} className="rounded-xl overflow-hidden border border-[var(--border-subtle)] w-full relative z-0 flex flex-col">
       <MapContainer

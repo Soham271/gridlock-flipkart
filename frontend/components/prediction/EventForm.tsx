@@ -54,6 +54,8 @@ export default function EventForm({ onSubmit, loading, pickedLocation, locationS
 
   useEffect(() => {
     if (externalPreset) {
+      // Demo scenarios drive the form from outside.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setForm(externalPreset)
       setDateTimeConfirmed(true)
       setDateTimeError(null)
@@ -71,6 +73,8 @@ export default function EventForm({ onSubmit, loading, pickedLocation, locationS
     }
 
     if (locationSuggestion) {
+      // Map clicks resolve to a location asynchronously and fill the form.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setForm(f => ({
         ...f,
         latitude: locationSuggestion.latitude,
@@ -99,7 +103,8 @@ export default function EventForm({ onSubmit, loading, pickedLocation, locationS
     }
   }, [pickedLocation?.lat, pickedLocation?.lng, locationSuggestion, externalPreset])
 
-  const set = (k: keyof PredictRequest, v: any) => setForm(f => ({ ...f, [k]: v }))
+  const set = <K extends keyof PredictRequest>(k: K, v: PredictRequest[K]) =>
+    setForm(f => ({ ...f, [k]: v }))
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()

@@ -1,9 +1,8 @@
 "use client"
-import { useEffect, useState, useRef } from "react"
+import { useEffect, useState, useRef, type ComponentType } from "react"
 import { motion, useReducedMotion } from "framer-motion"
 import dynamic from "next/dynamic"
-import { HistoryEntry } from "@/types"
-import { getHistory } from "@/lib/history"
+import { useHistory } from "@/lib/history"
 import { SEVERITY_COLORS } from "@/lib/severity"
 import SeverityBadge from "@/components/shared/SeverityBadge"
 import GlowBorder from "@/components/shared/GlowBorder"
@@ -47,8 +46,10 @@ function useCountUp(target: number, duration = 600, enabled = true) {
   const [value, setValue] = useState(0)
   const raf = useRef<number>(0)
 
+  const animating = enabled && target !== 0
+
   useEffect(() => {
-    if (!enabled || target === 0) { setValue(target); return }
+    if (!animating) return
     const start = performance.now()
     const tick = (now: number) => {
       const p = Math.min((now - start) / duration, 1)
@@ -57,9 +58,9 @@ function useCountUp(target: number, duration = 600, enabled = true) {
     }
     raf.current = requestAnimationFrame(tick)
     return () => cancelAnimationFrame(raf.current)
-  }, [target, duration, enabled])
+  }, [target, duration, animating])
 
-  return value
+  return animating ? value : target
 }
 
 function StatCard({
@@ -73,7 +74,7 @@ function StatCard({
   label: string
   rawValue: number
   displayValue: string
-  icon: any
+  icon: ComponentType<{ size?: number; stroke?: number; strokeWidth?: number; className?: string }>
   accent?: boolean
   delay: number
 }) {
@@ -114,8 +115,7 @@ function StatCard({
 
 export default function Dashboard() {
   const reduced = useReducedMotion()
-  const [history, setHistory] = useState<HistoryEntry[]>([])
-  useEffect(() => { setHistory(getHistory()) }, [])
+  const history = useHistory()
 
   const recent = history.slice(0, 6)
   const sevCounts = ["Low", "Medium", "High", "Critical"].map(label => ({

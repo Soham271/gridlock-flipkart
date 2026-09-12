@@ -1,9 +1,7 @@
 "use client"
-import { useEffect, useState } from "react"
 import { useParams, useRouter } from "next/navigation"
 import { motion, useReducedMotion } from "framer-motion"
-import { HistoryEntry } from "@/types"
-import { getHistory } from "@/lib/history"
+import { useHistory, useHistoryHydrated } from "@/lib/history"
 import { downloadReport } from "@/lib/report"
 import SeverityCard from "@/components/prediction/SeverityCard"
 import ProbabilityChart from "@/components/prediction/ProbabilityChart"
@@ -29,15 +27,12 @@ export default function PredictDetailPage() {
   const { id } = useParams<{ id: string }>()
   const router = useRouter()
   const reduced = useReducedMotion()
-  const [entry, setEntry] = useState<HistoryEntry | null | undefined>(undefined)
+  const history = useHistory()
+  const hydrated = useHistoryHydrated()
+  const entry = history.find(e => e.id === id) ?? null
 
-  useEffect(() => {
-    const history = getHistory()
-    const found = history.find(e => e.id === id)
-    setEntry(found ?? null)
-  }, [id])
-
-  if (entry === undefined) return null
+  // Nothing is known until the client has read local storage.
+  if (!hydrated) return null
 
   if (entry === null) {
     return (

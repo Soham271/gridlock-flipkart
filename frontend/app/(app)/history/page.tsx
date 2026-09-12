@@ -1,8 +1,6 @@
 "use client"
-import { useEffect, useState } from "react"
 import { motion, useReducedMotion } from "framer-motion"
-import { HistoryEntry } from "@/types"
-import { getHistory, clearHistory } from "@/lib/history"
+import { useHistory, clearHistory } from "@/lib/history"
 import { downloadReport } from "@/lib/report"
 import SeverityBadge from "@/components/shared/SeverityBadge"
 import Link from "next/link"
@@ -16,10 +14,9 @@ import { pageContainer as container, fadeUp as item } from "@/lib/motion"
 
 export default function HistoryPage() {
   const reduced  = useReducedMotion()
-  const [history, setHistory] = useState<HistoryEntry[]>([])
-  useEffect(() => { setHistory(getHistory()) }, [])
+  const history = useHistory()
 
-  const handleClear = () => { clearHistory(); setHistory([]) }
+  const handleClear = () => clearHistory()
 
   if (history.length === 0) {
     return (

@@ -49,8 +49,8 @@ export default function PredictPage() {
       setResult(res)
       setSavedId(entry.id)
       setSavedEntry(entry)
-    } catch (e: any) {
-      setError(e.message)
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Prediction failed")
     } finally {
       setLoading(false)
     }

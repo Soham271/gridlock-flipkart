@@ -31,7 +31,7 @@ export default function ProbabilityChart({ probs }: { probs: Record<string, numb
               contentStyle={{ background: "var(--bg-elevated-2)", border: "1px solid var(--border-subtle)", borderRadius: 4, fontSize: 11, fontFamily: "var(--font-mono)" }}
               labelStyle={{ color: "var(--text-secondary)" }}
               itemStyle={{ color: "var(--text-primary)" }}
-              formatter={(v: any) => [`${v}%`, "Probability"]}
+              formatter={v => [`${v}%`, "Probability"]}
               cursor={{ fill: "var(--bg-elevated-1)" }}
             />
             <Bar dataKey="value" radius={[2, 2, 0, 0]} maxBarSize={36}>

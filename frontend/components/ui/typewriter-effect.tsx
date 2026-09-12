@@ -2,7 +2,7 @@
 
 import { cn } from "@/lib/utils";
 import { motion, stagger, useAnimate, useInView } from "motion/react";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 
 export const TypewriterEffect = ({
   words,
@@ -101,7 +101,6 @@ export const TypewriterEffect = ({
 export const TypewriterEffectSmooth = ({
   words,
   className,
-  cursorClassName,
 }: {
   words: {
     text: string;
@@ -110,7 +109,6 @@ export const TypewriterEffectSmooth = ({
   className?: string;
   cursorClassName?: string;
 }) => {
-  const [isDone, setIsDone] = useState(false);
   // split text inside of words into array of characters
   const wordsArray = words.map((word) => {
     return {
@@ -155,7 +153,6 @@ export const TypewriterEffectSmooth = ({
           ease: "linear",
           delay: 1,
         }}
-        onAnimationComplete={() => setIsDone(true)}
       >
         <div
           className="text-xs sm:text-base md:text-xl lg:text:3xl xl:text-5xl font-bold"

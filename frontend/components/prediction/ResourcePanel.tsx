@@ -1,7 +1,10 @@
+import type { ComponentType } from "react"
 import { Recommendations } from "@/types"
 import { Users, Navigation, Clock, AlertTriangle, Zap, Shield } from "lucide-react"
 
-const Row = ({ label, value, icon: Icon }: { label: string; value: string; icon: any }) => (
+type IconComponent = ComponentType<{ size?: number; strokeWidth?: number }>
+
+const Row = ({ label, value, icon: Icon }: { label: string; value: string; icon: IconComponent }) => (
   <div className="flex items-start justify-between py-2.5 border-b border-[var(--border-subtle)] last:border-0">
     <div className="flex items-center gap-2 text-[var(--text-secondary)]">
       <Icon size={12} strokeWidth={1.5} />
